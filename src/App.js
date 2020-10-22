@@ -1,8 +1,8 @@
 import {createAppContainer} from 'react-navigation';
 import {createStackNavigator} from 'react-navigation-stack';
-import LoginScreen from './src/screens/loginScreen';
-import HomeScreen from './src/screens/homeScreen';
-import CreateAccountScreen from './src/screens/createAccountScreen';
+import LoginScreen from './screens/loginScreen';
+import HomeScreen from './screens/homeScreen';
+import CreateAccountScreen from './screens/createAccountScreen';
 
 const AppNavigator = createStackNavigator(
   {
