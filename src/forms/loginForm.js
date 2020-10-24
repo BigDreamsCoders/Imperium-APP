@@ -1,24 +1,20 @@
-import React, {useState} from 'react';
-import {
-  ScrollView,
-  StyleSheet,
-  TextInput,
-  Button,
-  Text,
-  View,
-} from 'react-native';
-import {setToken} from '../api/token';
+import React, { useContext, useState } from 'react';
+import { ScrollView, StyleSheet, TextInput, Button, Text } from 'react-native';
+import { AuthContext } from '../context/auth';
 
-const EmailForm = ({buttonText, onSubmit, children, onAuthentication}) => {
+const EmailForm = ({ buttonText, onSubmit, children, onAuthentication }) => {
+  const {
+    state: { token },
+    login,
+  } = useContext(AuthContext);
   const [email, onChangeEmail] = useState('');
   const [password, onChangePassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
   const submit = async () => {
     try {
-      const data = await onSubmit(email, password);
-      await setToken(data.token);
-      onAuthentication();
+      const data = await onSubmit({ email, password }, token);
+      login({ token: data.token });
     } catch (e) {
       if (e?.response?.data) {
         switch (e.response.data.statusCode) {

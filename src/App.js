@@ -1,18 +1,36 @@
-import { createAppContainer } from 'react-navigation';
-import { createStackNavigator } from 'react-navigation-stack';
+import React, { useContext } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import { AuthWrapper } from './wrapper/Auth';
+import { AuthContext } from './context/auth';
 import LoginScreen from './screens/loginScreen';
 import HomeScreen from './screens/homeScreen';
-import CreateAccountScreen from './screens/createAccountScreen';
 
-const AppNavigator = createStackNavigator(
-  {
-    Home: HomeScreen,
-    Login: LoginScreen,
-    CreateAccount: CreateAccountScreen,
-  },
-  {
-    initialRouteName: 'Login',
-  },
-);
+const Stack = createStackNavigator();
 
-export default createAppContainer(AppNavigator);
+export function App() {
+  return (
+    <NavigationContainer>
+      <AuthWrapper>
+        <NavigatorWrapper />
+      </AuthWrapper>
+    </NavigationContainer>
+  );
+}
+
+export function NavigatorWrapper() {
+  const {
+    state: { token },
+  } = useContext(AuthContext);
+  return (
+    <Stack.Navigator>
+      {token ? (
+        <>
+          <Stack.Screen name="Home" component={HomeScreen} />
+        </>
+      ) : (
+        <Stack.Screen name="Login" component={LoginScreen} />
+      )}
+    </Stack.Navigator>
+  );
+}
