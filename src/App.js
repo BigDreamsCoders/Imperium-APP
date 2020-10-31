@@ -6,6 +6,7 @@ import { AuthContext } from './context/auth';
 import LoginScreen from './screens/loginScreen';
 import HomeScreen from './screens/homeScreen';
 import { DetailScreen } from './screens/detail';
+import { Loading } from './screens/loadingSreen';
 
 const Stack = createSharedElementStackNavigator();
 
@@ -42,7 +43,6 @@ export function NavigatorWrapper() {
             name="Detail"
             component={DetailScreen}
             sharedElements={(route, otherRoute, showing) => {
-              console.log(route);
               const { id } = route.params;
               return [
                 { id: `photo.${id}`, animation: 'move' },
@@ -53,7 +53,26 @@ export function NavigatorWrapper() {
           />
         </>
       ) : (
-        <Stack.Screen name="Login" component={LoginScreen} />
+        <>
+          <Stack.Screen name="Splash" component={Loading} />
+          <Stack.Screen
+            name="Login"
+            component={LoginScreen}
+            sharedElements={(route, otherRoute, showing) => {
+              return [{ id: 'logo', animation: 'move' }];
+            }}
+            options={{
+              animationTypeForReplace: 'push',
+              cardStyleInterpolator: ({ current: { progress } }) => {
+                return {
+                  cardStyle: {
+                    opacity: 1,
+                  },
+                };
+              },
+            }}
+          />
+        </>
       )}
     </Stack.Navigator>
   );

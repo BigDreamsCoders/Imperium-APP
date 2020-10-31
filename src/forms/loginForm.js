@@ -1,6 +1,19 @@
 import React, { useContext, useState } from 'react';
-import { ScrollView, StyleSheet, TextInput, Button, Text } from 'react-native';
+import {
+  StyleSheet,
+  TextInput,
+  Button,
+  Text,
+  View,
+  Dimensions,
+} from 'react-native';
 import { AuthContext } from '../context/auth';
+import * as Animatable from 'react-native-animatable';
+import colors from '../utils/colors';
+import { BlueButton, PrimaryButton } from '../style/button';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+const { width, height } = Dimensions.get('screen');
 
 const EmailForm = ({ buttonText, onSubmit, children, onAuthentication }) => {
   const {
@@ -32,61 +45,70 @@ const EmailForm = ({ buttonText, onSubmit, children, onAuthentication }) => {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.text}>Email</Text>
-      <TextInput
-        placeholder={'Email'}
-        style={styles.input}
-        onChangeText={(text) => onChangeEmail(text)}
-        value={email}
-        keyboardType="email-address"
-      />
-      <Text style={styles.text}>Password</Text>
-      <TextInput
-        placeholder={'Password'}
-        style={styles.input}
-        onChangeText={(text) => onChangePassword(text)}
-        value={password}
-        //secureTextEntry
-      />
-      <Text style={styles.forgotText}>Forgot your password?</Text>
-      <Button title={buttonText} onPress={submit} color={'#F5D061'} />
+    <Animatable.View
+      style={styles.container}
+      animation="slideInUp"
+      duration={200}>
+      <SafeAreaView />
+      <View style={styles.inputWrapper}>
+        <Text style={styles.text}>Email</Text>
+        <TextInput
+          style={styles.input}
+          onChangeText={(text) => onChangeEmail(text)}
+          value={email}
+          keyboardType="email-address"
+        />
+      </View>
+      <View style={styles.inputWrapper}>
+        <Text style={styles.text}>Password</Text>
+        <TextInput
+          style={styles.input}
+          onChangeText={(text) => onChangePassword(text)}
+          value={password}
+          //secureTextEntry
+        />
+      </View>
+      <View>
+        <PrimaryButton title={buttonText} onPress={submit} />
+        <Text style={styles.forgotText}>Forgot your password?</Text>
+      </View>
       {errorMessage ? <Text>{errorMessage}</Text> : null}
-      {children}
-    </ScrollView>
+    </Animatable.View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flex: 2,
     alignItems: 'center',
-    //alignSelf:"flex-end",
     justifyContent: 'center',
-    backgroundColor: 'white',
-    borderRadius: 10,
-    paddingHorizontal: 25,
-    height: 350,
-    //backgroundColor:"green",
-    marginTop: 100,
+    width,
+    backgroundColor: colors.royal_blue_light,
+    borderTopStartRadius: 30,
+    borderTopEndRadius: 30,
+    padding: 25,
+  },
+  inputWrapper: {
+    padding: 20,
+    width: width,
   },
   input: {
     height: 40,
-    width: 275,
-    borderColor: '#BFBFBF',
-    borderWidth: 0.75,
+    borderColor: colors.yellow_patito,
+    borderWidth: 2,
+    borderRadius: 20,
     paddingHorizontal: 10,
   },
   text: {
-    color: 'black',
-    alignSelf: 'flex-start',
-    marginTop: 15,
+    color: colors.white,
+    padding: 10,
+    fontSize: 24,
   },
   forgotText: {
-    color: '#1890FF',
-    alignSelf: 'flex-start',
+    color: colors.yellow_patito,
+    alignSelf: 'center',
     fontSize: 12,
-    marginBottom: 10,
+    marginTop: 10,
   },
 });
 

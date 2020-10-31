@@ -1,7 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useAsyncStorage } from '@react-native-community/async-storage';
 import React, { useEffect, useMemo, useReducer } from 'react';
-import { Dimensions, Text, View } from 'react-native';
 import { verifyToken } from '../api/authentication';
 import { AuthContext } from '../context/auth';
 import { actions, AuthReducer, InitialState } from '../reducers/auth';
@@ -47,21 +46,6 @@ export function AuthWrapper({ children }) {
     }),
     [state],
   );
-
-  if (state.isLoading) {
-    return (
-      <View
-        style={{
-          display: 'flex',
-          width: Dimensions.get('window').width,
-          height: Dimensions.get('window').height,
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}>
-        <Text>Loading...</Text>
-      </View>
-    );
-  }
 
   return (
     <AuthContext.Provider value={authContext}>{children}</AuthContext.Provider>
