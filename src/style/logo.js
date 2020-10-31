@@ -8,6 +8,5 @@ export const style = StyleSheet.create({
     width: logoHeight,
     height: logoHeight,
     resizeMode: 'contain',
-    marginBottom: 100,
   },
 });

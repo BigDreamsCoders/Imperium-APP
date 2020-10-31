@@ -1,7 +1,22 @@
 import React from 'react';
-import { Button, StyleSheet, Text } from 'react-native';
+import { Icon } from 'react-native-elements';
+import { View, StyleSheet, Text } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import colors from '../utils/colors';
+
+export function BackArrow({ callback }) {
+  return (
+    <View style={style.backArrow}>
+      <Icon
+        name="arrowleft"
+        type="antdesign"
+        size={48}
+        color={colors.yellow}
+        onPress={callback}
+      />
+    </View>
+  );
+}
 
 export function PrimaryButton({ title, onPress }) {
   return (
@@ -41,9 +56,14 @@ const style = StyleSheet.create({
     backgroundColor: colors.royal_blue,
     color: colors.yellow,
   },
-
   text: {
     fontSize: 24,
     fontWeight: '600',
+  },
+  backArrow: {
+    position: 'absolute',
+    color: colors.yellow,
+    top: 0,
+    left: 10,
   },
 });

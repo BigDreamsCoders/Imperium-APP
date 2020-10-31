@@ -16,57 +16,16 @@ import {
 import { SharedElement } from 'react-navigation-shared-element';
 import { album } from '../api/users';
 import { AuthContext } from '../context/auth';
+import colors from '../utils/colors';
 
-export default function HomeScreen({ navigation }) {
+export function HomeScreen({ navigation }) {
   const {
     state: { token },
-    logout,
   } = useContext(AuthContext);
-  const [isLoading, setIsLoading] = useState(true);
-  const [albums, setAlbums] = useState([]);
-
-  useEffect(() => {
-    async function bootstrap() {
-      try {
-        const { data } = await album();
-        setAlbums(data.data);
-      } catch (e) {
-        console.log(e);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    bootstrap();
-  }, []);
   return (
-    <SafeAreaView style={style.container}>
-      {!isLoading ? (
-        <FlatList
-          data={albums}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => {
-            const { avatar, id, first_name, last_name } = item;
-            return (
-              <TouchableWithoutFeedback
-                onPress={() => navigation.push('Detail', item)}>
-                <View style={style.card}>
-                  <SharedElement id={`photo.${id}`}>
-                    <Image style={style.image} source={{ uri: avatar }} />
-                  </SharedElement>
-                  <SharedElement id={`text.${item.id}`}>
-                    <Text
-                      style={style.text}>{`${first_name} ${last_name}`}</Text>
-                  </SharedElement>
-                </View>
-              </TouchableWithoutFeedback>
-            );
-          }}
-        />
-      ) : (
-        <View />
-      )}
-      <Button title="Logout" onPress={logout} />
-    </SafeAreaView>
+    <View style={style.container}>
+      <StatusBar backgroundColor={colors.royal_blue} />
+    </View>
   );
 }
 
@@ -75,7 +34,7 @@ const style = StyleSheet.create({
     display: 'flex',
     flex: 1,
     alignItems: 'center',
-    marginTop: StatusBar.currentHeight || 0,
+    backgroundColor: colors.royal_blue,
   },
   card: {
     borderColor: 'black',

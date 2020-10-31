@@ -1,13 +1,39 @@
-import React from 'react';
-import { View, StyleSheet, StatusBar } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import React, { useEffect, useRef } from 'react';
+import { View, StyleSheet, StatusBar, Dimensions } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import { SharedElement } from 'react-navigation-shared-element';
-import { login } from '../api/authentication';
-import EmailForm from '../forms/loginForm';
+import LoginForm from '../forms/loginForm';
+import { formStyle } from '../style/form';
 import colors from '../utils/colors';
 import { style as logoStyle } from './../style/logo';
 
-const LoginScreen = () => {
+const { width } = Dimensions.get('screen');
+
+export function LoginScreen() {
+  const formRef = useRef();
+  const { removeListener, addListener } = useNavigation();
+  const onForgot = async () => {
+    await formRef.current.bounceOut(200);
+  };
+
+  useEffect(() => {
+    const callbackIn = () => {
+      formRef.current.bounceIn(700);
+      formRef.current.slideInUp(700);
+    };
+    const callbackOut = () => {
+      formRef.current.bounceOut(700);
+    };
+    addListener('focus', callbackIn);
+    addListener('blur', callbackOut);
+    return () => {
+      removeListener('focus', callbackIn);
+      removeListener('blur', callbackOut);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <View style={styles.container}>
       <StatusBar backgroundColor={colors.royal_blue} animated={true} />
@@ -19,24 +45,27 @@ const LoginScreen = () => {
           />
         </SharedElement>
       </View>
-      <EmailForm buttonText="Sign in" onSubmit={login} />
+      <Animatable.View
+        animation="slideInUp"
+        duration={200}
+        ref={formRef}
+        style={formStyle.container}>
+        <LoginForm buttonText="Sign in" onForgot={onForgot} />
+      </Animatable.View>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    alignContent: 'center',
     backgroundColor: colors.royal_blue,
-    //paddingVertical:100
   },
   logo: {
+    width,
     flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
+    justifyContent: 'center',
   },
   forgotText: {
     color: '#1890FF',
@@ -45,5 +74,3 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
 });
-
-export default LoginScreen;

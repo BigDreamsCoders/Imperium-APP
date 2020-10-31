@@ -1,25 +1,26 @@
-import React, { useContext, useState } from 'react';
-import {
-  StyleSheet,
-  TextInput,
-  Button,
-  Text,
-  View,
-  Dimensions,
-} from 'react-native';
+import React, { useContext, useRef, useState } from 'react';
+import { StyleSheet, TextInput, Text, View, Dimensions } from 'react-native';
 import { AuthContext } from '../context/auth';
-import * as Animatable from 'react-native-animatable';
-import colors from '../utils/colors';
-import { BlueButton, PrimaryButton } from '../style/button';
+import { PrimaryButton } from '../style/button';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import colors from '../utils/colors';
+import * as Animatable from 'react-native-animatable';
+import { useNavigation } from '@react-navigation/native';
+import constants from '../utils/constants';
+import { formStyle } from './../style/form';
+import { SharedElement } from 'react-navigation-shared-element';
+import { login as onSubmit } from '../api/authentication';
+import { showMessage } from 'react-native-flash-message';
 
-const { width, height } = Dimensions.get('screen');
+const { width } = Dimensions.get('screen');
 
-const EmailForm = ({ buttonText, onSubmit, children, onAuthentication }) => {
+const LoginForm = ({ buttonText, onForgot }) => {
   const {
     state: { token },
     login,
   } = useContext(AuthContext);
+  const navigation = useNavigation();
   const [email, onChangeEmail] = useState('');
   const [password, onChangePassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -29,27 +30,28 @@ const EmailForm = ({ buttonText, onSubmit, children, onAuthentication }) => {
       const data = await onSubmit({ email, password }, token);
       login({ token: data.token });
     } catch (e) {
+      const message = {
+        message: 'No nos pudimos conectar con el servidor',
+        type: 'danger',
+      };
       if (e?.response?.data) {
         switch (e.response.data.statusCode) {
           case 401: {
-            setErrorMessage('Credenciales incorrectas');
+            message.message = 'Credenciales erroneas';
             break;
           }
           default: {
-            setErrorMessage('Algo salió mal');
+            message.message = 'Algo salió mal';
             break;
           }
         }
       }
+      showMessage(message);
     }
   };
 
   return (
-    <Animatable.View
-      style={styles.container}
-      animation="slideInUp"
-      duration={200}>
-      <SafeAreaView />
+    <>
       <View style={styles.inputWrapper}>
         <Text style={styles.text}>Email</Text>
         <TextInput
@@ -65,31 +67,28 @@ const EmailForm = ({ buttonText, onSubmit, children, onAuthentication }) => {
           style={styles.input}
           onChangeText={(text) => onChangePassword(text)}
           value={password}
-          //secureTextEntry
+          secureTextEntry
         />
       </View>
-      <View>
+      <View style={styles.buttons}>
         <PrimaryButton title={buttonText} onPress={submit} />
-        <Text style={styles.forgotText}>Forgot your password?</Text>
+        <TouchableWithoutFeedback
+          style={styles.forgotText}
+          onPress={async () => {
+            await onForgot();
+            navigation.push(constants.SCREENS.FORGOT);
+          }}>
+          <Text style={styles.forgotText}>Forgot your password?</Text>
+        </TouchableWithoutFeedback>
       </View>
       {errorMessage ? <Text>{errorMessage}</Text> : null}
-    </Animatable.View>
+    </>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-    width,
-    backgroundColor: colors.royal_blue_light,
-    borderTopStartRadius: 30,
-    borderTopEndRadius: 30,
-    padding: 25,
-  },
   inputWrapper: {
-    padding: 20,
+    paddingHorizontal: 20,
     width: width,
   },
   input: {
@@ -98,18 +97,23 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderRadius: 20,
     paddingHorizontal: 10,
+    color: colors.yellow_patito,
   },
   text: {
     color: colors.white,
     padding: 10,
     fontSize: 24,
   },
+  buttons: {
+    alignItems: 'center',
+    marginTop: 10,
+  },
   forgotText: {
     color: colors.yellow_patito,
     alignSelf: 'center',
-    fontSize: 12,
-    marginTop: 10,
+    fontSize: 16,
+    marginTop: 15,
   },
 });
 
-export default EmailForm;
+export default LoginForm;

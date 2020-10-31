@@ -6,6 +6,7 @@ import { AuthContext } from '../context/auth';
 import { PrimaryButton } from '../style/button';
 import { SharedElement } from 'react-navigation-shared-element';
 import { style as logoStyle } from '../style/logo';
+import constants from '../utils/constants';
 
 const { height, width } = Dimensions.get('screen');
 
@@ -13,7 +14,6 @@ export function Loading({ navigation }) {
   const {
     state: { isLoading },
   } = useContext(AuthContext);
-  console.log(navigation);
   const animatinoProps = {
     animation: !isLoading ? 'pulse' : 'bounceIn',
     iterationCount: isLoading ? 1 : 'infinite',
@@ -35,7 +35,7 @@ export function Loading({ navigation }) {
           <PrimaryButton
             title="Comenzar"
             onPress={() => {
-              navigation.replace('Login');
+              navigation.replace(constants.SCREENS.LOGIN);
             }}
           />
         )}
