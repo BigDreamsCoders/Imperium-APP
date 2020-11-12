@@ -1,6 +1,13 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { useEffect, useRef } from 'react';
-import { View, StyleSheet, StatusBar, Dimensions } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  StatusBar,
+  Dimensions,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import { SharedElement } from 'react-navigation-shared-element';
 import LoginForm from '../forms/loginForm';
@@ -35,7 +42,9 @@ export function LoginScreen() {
   }, []);
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <StatusBar backgroundColor={colors.royal_blue} animated={true} />
       <View style={styles.logo}>
         <SharedElement id={'logo'}>
@@ -52,7 +61,7 @@ export function LoginScreen() {
         style={formStyle.container}>
         <LoginForm buttonText="Sign in" onForgot={onForgot} />
       </Animatable.View>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 

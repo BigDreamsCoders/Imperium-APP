@@ -3,16 +3,16 @@ import { StyleSheet, Dimensions, View, StatusBar } from 'react-native';
 import colors from '../utils/colors';
 import * as Animatable from 'react-native-animatable';
 import { AuthContext } from '../context/auth';
-import { PrimaryButton } from '../style/button';
+import { StyledPrimaryButton, StyledButtonText } from '../style/button';
 import { SharedElement } from 'react-navigation-shared-element';
 import { style as logoStyle } from '../style/logo';
 import constants from '../utils/constants';
 
 const { height, width } = Dimensions.get('screen');
 
-export function Loading({ navigation }) {
+export function SplashScreen({ navigation }) {
   const {
-    state: { isLoading },
+    state: { isLoading, token },
   } = useContext(AuthContext);
   const animatinoProps = {
     animation: !isLoading ? 'pulse' : 'bounceIn',
@@ -31,13 +31,13 @@ export function Loading({ navigation }) {
             duration={2000}
           />
         </SharedElement>
-        {!isLoading && (
-          <PrimaryButton
-            title="Comenzar"
+        {!isLoading && !token && (
+          <StyledPrimaryButton
             onPress={() => {
               navigation.replace(constants.SCREENS.LOGIN);
-            }}
-          />
+            }}>
+            <StyledButtonText>Comenzar</StyledButtonText>
+          </StyledPrimaryButton>
         )}
       </View>
     </View>

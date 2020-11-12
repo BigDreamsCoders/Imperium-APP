@@ -1,9 +1,15 @@
 import React, { useContext, useRef, useState } from 'react';
-import { StyleSheet, TextInput, Text, View, Dimensions } from 'react-native';
+import {
+  StyleSheet,
+  TextInput,
+  Text,
+  View,
+  Dimensions,
+  KeyboardAvoidingView,
+  TouchableWithoutFeedback,
+} from 'react-native';
 import { AuthContext } from '../context/auth';
-import { PrimaryButton } from '../style/button';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import { Button, StyledButtonText, StyledPrimaryButton } from '../style/button';
 import colors from '../utils/colors';
 import * as Animatable from 'react-native-animatable';
 import { useNavigation } from '@react-navigation/native';
@@ -12,8 +18,13 @@ import { formStyle } from './../style/form';
 import { SharedElement } from 'react-navigation-shared-element';
 import { login as onSubmit } from '../api/authentication';
 import { showMessage } from 'react-native-flash-message';
+import styled from 'styled-components/native';
 
 const { width } = Dimensions.get('screen');
+
+const LoginButton = styled(Button)`
+  background-color: ${colors.yellow_patito};
+`;
 
 const LoginForm = ({ buttonText, onForgot }) => {
   const {
@@ -71,7 +82,9 @@ const LoginForm = ({ buttonText, onForgot }) => {
         />
       </View>
       <View style={styles.buttons}>
-        <PrimaryButton title={buttonText} onPress={submit} />
+        <LoginButton onPress={submit}>
+          <StyledButtonText>{buttonText}</StyledButtonText>
+        </LoginButton>
         <TouchableWithoutFeedback
           style={styles.forgotText}
           onPress={async () => {

@@ -4,12 +4,13 @@ export const actions = {
   LOGOUT: 'LOGOUT',
 };
 
-export function AuthReducer(prevState, { type, token }) {
+export function AuthReducer(prevState, { type, token, user }) {
   switch (type) {
     case actions.RESTORE_TOKEN:
       return {
         ...prevState,
-        token: token,
+        token,
+        user,
         isLoading: false,
       };
     case actions.LOGIN:
@@ -30,6 +31,7 @@ export function AuthReducer(prevState, { type, token }) {
 
 export const InitialState = {
   token: null,
+  user: null,
   isLoading: true,
   isLogout: false,
 };

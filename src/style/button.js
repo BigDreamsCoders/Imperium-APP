@@ -3,6 +3,27 @@ import { Icon } from 'react-native-elements';
 import { View, StyleSheet, Text } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import colors from '../utils/colors';
+import styled from 'styled-components/native';
+
+export const Button = styled.TouchableOpacity`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 200px;
+  height: 40px;
+  padding: 4px;
+  border-radius: 20px;
+`;
+
+export const StyledPrimaryButton = styled(Button)`
+  background-color: ${colors.yellow};
+`;
+
+export const StyledButtonText = styled.Text`
+  font-size: 16px;
+  font-weight: 900;
+  color: ${colors.royal_blue};
+`;
 
 export function BackArrow({ callback }) {
   return (
@@ -15,16 +36,6 @@ export function BackArrow({ callback }) {
         onPress={callback}
       />
     </View>
-  );
-}
-
-export function PrimaryButton({ title, onPress }) {
-  return (
-    <TouchableOpacity
-      style={StyleSheet.compose(style.button, style.primary)}
-      onPress={onPress}>
-      <Text style={style.text}>{title}</Text>
-    </TouchableOpacity>
   );
 }
 

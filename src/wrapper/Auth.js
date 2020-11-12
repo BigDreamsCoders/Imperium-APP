@@ -20,8 +20,8 @@ export function AuthWrapper({ children }) {
       try {
         token = await getToken();
         if (token) {
-          await verifyToken(token);
-          dispatch({ type: actions.RESTORE_TOKEN, token });
+          const data = await verifyToken(token);
+          dispatch({ type: actions.RESTORE_TOKEN, token, user: data });
         } else {
           throw Error();
         }

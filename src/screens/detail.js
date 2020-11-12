@@ -8,18 +8,14 @@ import {
   View,
 } from 'react-native';
 import { SharedElement } from 'react-navigation-shared-element';
+import { Header } from '../components/header';
+import { Container } from '../style/layouts';
 
-export function DetailScreen({ route }) {
-  const { params: item } = route;
+export function DetailScreen() {
   return (
-    <View style={style.container}>
-      <SharedElement id={`photo.${item.id}`}>
-        <Image style={style.image} source={{ uri: item.avatar }} />
-      </SharedElement>
-      <SharedElement id={`text.${item.id}`}>
-        <Text style={style.text}>{`${item.first_name} ${item.last_name}`}</Text>
-      </SharedElement>
-    </View>
+    <Container>
+      <Header />
+    </Container>
   );
 }
 

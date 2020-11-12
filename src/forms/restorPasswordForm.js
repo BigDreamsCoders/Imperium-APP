@@ -2,21 +2,25 @@ import React, { useContext, useRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { Dimensions, StyleSheet, Text, TextInput, View } from 'react-native';
 import * as Animatable from 'react-native-animatable';
-import { PrimaryButton } from '../style/button';
+import { StyledButtonText, StyledPrimaryButton } from '../style/button';
 import { formStyle } from '../style/form';
 import colors from '../utils/colors';
 import { restorePassword } from '../api/users';
 import { AuthContext } from '../context/auth';
 import { showMessage } from 'react-native-flash-message';
+import styled from 'styled-components/native';
 
 const { width } = Dimensions.get('screen');
+
+/* const Text = styled(StyledButtonText)`
+  color: ${}
+` */
 
 export function RestorePasswordForm() {
   const {
     state: { token },
   } = useContext(AuthContext);
   const [email, setEmail] = useState('');
-  const [visible, setVisible] = useState(false);
 
   const onSubmit = async (email) => {
     try {
@@ -41,7 +45,9 @@ export function RestorePasswordForm() {
         />
       </View>
       <View style={{ alignItems: 'center' }}>
-        <PrimaryButton title={'Reset Password'} onPress={onSubmit} />
+        <StyledPrimaryButton title={'Reset Password'} onPress={onSubmit}>
+          <StyledButtonText>Reset Password</StyledButtonText>
+        </StyledPrimaryButton>
       </View>
     </>
   );

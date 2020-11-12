@@ -1,52 +1,34 @@
 import React, { useContext } from 'react';
 import { createSharedElementStackNavigator } from 'react-navigation-shared-element';
-import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
+import { createDrawerNavigator } from '@react-navigation/drawer';
 import { AuthContext } from '../context/auth';
-import { DetailScreen } from '../screens/detail';
-import { ForgotScreen } from '../screens/forgotPasswordScreen';
-import { HomeScreen } from '../screens/homeScreen';
-import { Loading } from '../screens/loadingSreen';
-import { LoginScreen } from '../screens/loginScreen';
-import constants from '../utils/constants';
+import { authNavigationItems, mainNavigationItems } from './items';
+import { CustomDrawerContent } from '../components/drawerContent';
 import colors from '../utils/colors';
-import { Icon } from 'react-native-elements';
 
-const Tab = createMaterialBottomTabNavigator();
 const Stack = createSharedElementStackNavigator();
+const Drawer = createDrawerNavigator();
 
-export function NavigatorWrapper() {
-  const {
-    state: { token },
-  } = useContext(AuthContext);
-  if (token) {
-    return (
-      <Tab.Navigator
-        inactiveColor={colors.yellow_patito}
-        activeColor={colors.yellow}
-        barStyle={{ backgroundColor: colors.royal_blue, elevation: 50 }}>
-        <Tab.Screen
-          name={constants.SCREENS.HOME}
-          component={HomeScreen}
-          options={{
-            tabBarIcon: ({ focused, color }) => {
-              return (
-                <Icon
-                  name="home"
-                  type="antdesign"
-                  color={focused ? colors.yellow : colors.yellow_patito}
-                />
-              );
-            },
-          }}
-        />
-        <Tab.Screen name="Detail" component={DetailScreen} />
-      </Tab.Navigator>
-    );
-  }
+function MainNavigator() {
+  return (
+    <Drawer.Navigator
+      drawerContent={(props) => <CustomDrawerContent {...props} />}
+      drawerStyle={{ backgroundColor: colors.royal_blue_light }}
+      drawerContentOptions={{
+        activeTintColor: colors.yellow,
+        inactiveTintColor: colors.yellow_patito,
+      }}>
+      {mainNavigationItems.map((item) => {
+        return <Drawer.Screen key={item.name} {...item} />;
+      })}
+    </Drawer.Navigator>
+  );
+}
 
+function AuthNavigator() {
   return (
     <Stack.Navigator
-      headerMode={'none'}
+      headerMode="none"
       screenOptions={{
         cardStyleInterpolator: ({ current: { progress } }) => {
           return {
@@ -55,42 +37,26 @@ export function NavigatorWrapper() {
             },
           };
         },
+        headerStyle: {
+          backgroundColor: colors.royal_blue,
+        },
+        headerTintColor: colors.white,
       }}>
-      <Stack.Screen name={constants.SCREENS.SPLASH} component={Loading} />
-      <Stack.Screen
-        name={constants.SCREENS.LOGIN}
-        component={LoginScreen}
-        sharedElements={(route, otherRoute, showing) => {
-          return [{ id: 'logo', animation: 'move' }];
-        }}
-        options={{
-          animationTypeForReplace: 'push',
-          cardStyleInterpolator: ({ current: { progress } }) => {
-            return {
-              cardStyle: {
-                opacity: 1,
-              },
-            };
-          },
-        }}
-      />
-      <Stack.Screen
-        name={constants.SCREENS.FORGOT}
-        component={ForgotScreen}
-        sharedElements={(route, otherRoute, showing) => {
-          return [{ id: 'logo', animation: 'move' }];
-        }}
-        options={{
-          animationTypeForReplace: 'push',
-          cardStyleInterpolator: ({ current: { progress } }) => {
-            return {
-              cardStyle: {
-                opacity: 1,
-              },
-            };
-          },
-        }}
-      />
+      {authNavigationItems.map((item) => {
+        return <Stack.Screen key={item.name} {...item} />;
+      })}
     </Stack.Navigator>
   );
+}
+
+export function NavigatorWrapper() {
+  const {
+    state: { token },
+  } = useContext(AuthContext);
+
+  if (token) {
+    return <MainNavigator />;
+  } else {
+    return <AuthNavigator />;
+  }
 }

@@ -4,4 +4,5 @@ export default {
   yellow_patito: '#f5d061',
   royal_blue_light: '#414c6e',
   white: '#ececec',
+  red: '#f0545480',
 };

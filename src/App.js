@@ -1,21 +1,34 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
+import 'react-native-gesture-handler';
+import { QueryCache, ReactQueryCacheProvider } from 'react-query';
 import { NavigationContainer } from '@react-navigation/native';
 import { AuthWrapper } from './wrapper/Auth';
-import { SafeAreaView, StyleSheet } from 'react-native';
-import FlashMessage from 'react-native-flash-message';
+import { LogBox, SafeAreaView, StyleSheet } from 'react-native';
 import { NavigatorWrapper } from './navigators/navigators';
-import colors from './utils/colors';
+import FlashMessage from 'react-native-flash-message';
+import moment from 'moment';
+import 'moment/locale/es';
+
+moment.locale('es');
+
+const queryCache = new QueryCache();
 
 export function App() {
+  useEffect(() => {
+    LogBox.ignoreLogs(['Setting a timer']);
+  }, []);
+
   const flashRef = useRef();
   return (
     <NavigationContainer>
-      <AuthWrapper>
-        <SafeAreaView style={style.container}>
-          <NavigatorWrapper />
-          <FlashMessage ref={flashRef} position="top" />
-        </SafeAreaView>
-      </AuthWrapper>
+      <ReactQueryCacheProvider queryCache={queryCache}>
+        <AuthWrapper>
+          <SafeAreaView style={style.container}>
+            <NavigatorWrapper />
+            <FlashMessage ref={flashRef} position="top" />
+          </SafeAreaView>
+        </AuthWrapper>
+      </ReactQueryCacheProvider>
     </NavigationContainer>
   );
 }
