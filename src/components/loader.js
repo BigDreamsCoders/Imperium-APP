@@ -7,6 +7,6 @@ const Indicator = styled(ActivityIndicator)`
   flex: 1;
 `;
 
-export function Loader() {
-  return <Indicator color={colors.yellow_patito} size="large" />;
+export function Loader(props) {
+  return <Indicator {...props} size="large" />;
 }

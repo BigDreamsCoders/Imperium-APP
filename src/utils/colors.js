@@ -5,4 +5,5 @@ export default {
   royal_blue_light: '#414c6e',
   white: '#ececec',
   red: '#f0545480',
+  green: '#3BB143',
 };

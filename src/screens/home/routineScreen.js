@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { useContext, useEffect } from 'react';
-import { FlatList, RefreshControl, StyleSheet } from 'react-native';
+import { FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { useMutation, useQuery, useQueryCache } from 'react-query';
 import styled from 'styled-components/native';
@@ -9,7 +9,11 @@ import { AuthContext } from '../../context/auth';
 import colors from '../../utils/colors';
 import { Layout } from './components/layout';
 import { RoutineItem } from './components/routine/routineItem';
-import { userRoutines, userSavedRoutines } from '../../api/users';
+import {
+  getUserRoutineHistory,
+  userRoutines,
+  userSavedRoutines,
+} from '../../api/users';
 import constants from '../../utils/constants';
 import { FabButton } from '../../components/fabAnimation';
 import { Container } from '../../style/layouts';
@@ -18,6 +22,12 @@ import { FAB } from 'react-native-paper';
 
 const Wrapper = styled(Container)`
   padding: 4px 0;
+`;
+
+const TextWrapper = styled.View`
+  flex: 1;
+  justify-content: center;
+  align-items: center;
 `;
 
 function AllRoutines() {
@@ -191,6 +201,67 @@ function MyRoutines() {
   );
 }
 
+function RoutineHistory() {
+  const {
+    state: { token },
+  } = useContext(AuthContext);
+
+  const navigation = useNavigation();
+  const { isFetching, data, refetch } = useQuery(
+    'get-routine-history',
+    async () => {
+      return await getUserRoutineHistory(token);
+    },
+    { placeholderData: [] },
+  );
+
+  useEffect(() => {
+    navigation.addListener('focus', refetch);
+    return () => {
+      navigation.removeListener('beforeRemove', refetch);
+    };
+  }, []);
+  return (
+    <Wrapper>
+      {data.length === 0 ? (
+        <TextWrapper>
+          <Text
+            style={{
+              color: colors.yellow_patito,
+              fontSize: 40,
+              alignSelf: 'center',
+            }}>
+            Aun no has hecho rutinas
+          </Text>
+        </TextWrapper>
+      ) : (
+        <FlatList
+          data={data}
+          keyExtractor={(item) => item.id.toString()}
+          refreshControl={
+            <RefreshControl
+              refreshing={isFetching}
+              onRefresh={refetch}
+              progressBackgroundColor={colors.yellow_patito}
+            />
+          }
+          renderItem={({ item }) => {
+            return (
+              <RoutineItem
+                item={{ ...item, saved: true }}
+                id={id}
+                onBookmarkPress={() => {
+                  toggle({ id: item.id, token });
+                }}
+              />
+            );
+          }}
+        />
+      )}
+    </Wrapper>
+  );
+}
+
 const Tab = createMaterialTopTabNavigator();
 
 export function RoutineScreen({ navigation }) {
@@ -198,11 +269,13 @@ export function RoutineScreen({ navigation }) {
     <Layout>
       <Tab.Navigator
         style={{ backgroundColor: colors.royal_blue }}
+        sceneContainerStyle={{ backgroundColor: colors.royal_blue }}
         tabBarOptions={{
           bounces: true,
           style: { backgroundColor: colors.royal_blue, paddingTop: 40 },
           activeTintColor: colors.yellow_patito,
           inactiveTintColor: colors.yellow,
+          labelStyle: { textTransform: 'none' },
           indicatorStyle: {
             backgroundColor: colors.yellow_patito,
             zIndex: 30,
@@ -211,6 +284,7 @@ export function RoutineScreen({ navigation }) {
         <Tab.Screen name="Todos" component={AllRoutines} />
         <Tab.Screen name="Guardados" component={SavedRoutines} />
         <Tab.Screen name="Creadas por mi" component={MyRoutines} />
+        <Tab.Screen name="Mi historial" component={RoutineHistory} />
       </Tab.Navigator>
       <FabButton
         onPress={() => {

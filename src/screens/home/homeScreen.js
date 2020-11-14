@@ -7,6 +7,8 @@ import { StyleSheet } from 'react-native';
 import constants from '../../utils/constants';
 import { NewRoutineScreen } from './routine/newRoutine';
 import { createSharedElementStackNavigator } from 'react-navigation-shared-element';
+import { RoutineSelection } from './routine/routineSelection';
+import { Chronometer } from './workout/chronometer';
 
 const Tab = createMaterialBottomTabNavigator();
 
@@ -49,26 +51,43 @@ const opacityTransition = {
   }),
 };
 
+const routes = [
+  {
+    name: constants.SCREENS.HOME.HOME_TAB,
+    component: HomeTabScreen,
+    sharedElements: () => {
+      return [{ id: 'fab', animation: 'fade' }];
+    },
+  },
+  {
+    name: constants.SCREENS.ROUTINE.NEWROUTINE,
+    component: NewRoutineScreen,
+    sharedElements: () => {
+      return ['fab'];
+    },
+  },
+  {
+    name: constants.SCREENS.WORKOUT_FLOW.ROUTINE_SELECTION,
+    component: RoutineSelection,
+  },
+  {
+    name: constants.SCREENS.WORKOUT_FLOW.ROUTINE_CHRONOMETER,
+    component: Chronometer,
+  },
+];
+
 export function HomeScreen() {
   return (
     <RootStack.Navigator
       headerMode="none"
-      screenOptions={{ ...opacityTransition }}
+      screenOptions={({ route: { name } }) => {
+        if (name === constants.SCREENS.ROUTINE.NEWROUTINE)
+          return { ...opacityTransition };
+      }}
       initialRouteName={constants.SCREENS.HOME.HOME_TAB}>
-      <RootStack.Screen
-        name={constants.SCREENS.HOME.HOME_TAB}
-        component={HomeTabScreen}
-        sharedElements={() => {
-          return [{ id: 'fab', animation: 'fade' }];
-        }}
-      />
-      <RootStack.Screen
-        name={constants.SCREENS.ROUTINE.NEWROUTINE}
-        component={NewRoutineScreen}
-        sharedElements={(route, otherRoute, showing) => {
-          return ['fab'];
-        }}
-      />
+      {routes.map((item) => (
+        <RootStack.Screen key={item.name} {...item} />
+      ))}
     </RootStack.Navigator>
   );
 }

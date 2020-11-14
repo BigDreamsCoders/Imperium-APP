@@ -8,10 +8,10 @@ export const Container = styled.View`
 `;
 
 export const Content = styled.View`
-  /* flex: 1; */
+  flex: 1;
   width: 100%;
   background-color: ${colors.royal_blue};
-  justify-content: ${(props) => props.jusifyContent ?? 'center'};
+  justify-content: ${(props) => props.justifyContent ?? 'center'};
   padding: 0 0 10px 0;
 `;
 

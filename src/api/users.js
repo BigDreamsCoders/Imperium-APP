@@ -22,3 +22,11 @@ export const userRoutines = async (token) => {
     saved: savedRoutines.some((savedRoutine) => savedRoutine.id === routine.id),
   }));
 };
+
+export const getUserRoutineHistory = async (token) => {
+  const {
+    data: { history },
+  } = await axiosInstance(token).get('users/me');
+  console.log(history);
+  return history;
+};

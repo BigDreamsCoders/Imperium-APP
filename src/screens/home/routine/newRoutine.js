@@ -20,6 +20,8 @@ const IconCloseWrap = styled.View`
   align-self: flex-start;
   top: 10px;
   left: 10px;
+  background-color: #00000030;
+  border-radius: 30px;
 `;
 
 const IconDoneWrapper = styled(SharedElement)`
@@ -54,11 +56,10 @@ export function NewRoutineScreen({ navigation }) {
   const [workstationList, setNewWorkstationList] = useState([]);
   const [name, setName] = useState('');
 
-  const { data, isFetching } = useQuery(
-    'workstation-category',
-    async () => await getWorkstationsCategory(token),
-    { initialData: [] },
-  );
+  const { data, isFetching } = useQuery('workstation-category', async () => {
+    const data = await getWorkstationsCategory(token);
+    return data;
+  });
 
   const [addNewRoutine] = useMutation(addRoutine, {
     onSuccess: () => {
@@ -100,7 +101,7 @@ export function NewRoutineScreen({ navigation }) {
       <Text>Selecciona que harás</Text>
       <Wrapper>
         {isFetching ? (
-          <Loader />
+          <Loader color={colors.royal_blue} />
         ) : (
           <List
             data={data}
