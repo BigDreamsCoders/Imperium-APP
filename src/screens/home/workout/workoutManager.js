@@ -179,12 +179,14 @@ export function WorkoutManager() {
     },
   );
   const workstationCategories = useMemo(() => {
-    if (!data) return undefined;
+    if (!data) {
+      return undefined;
+    }
     const workstation = [...data.workstation];
     return workstation.splice(index).map((e) => {
       return e.workstationCategory;
     });
-  }, [data]);
+  }, [data, index]);
 
   const onCloseModal = useCallback(() => {
     bottomSheetRef.current.snapTo(1);
@@ -214,7 +216,7 @@ export function WorkoutManager() {
           workstationCategories.map(({ name }, workstationIndex) => {
             return (
               <WorkstationCard key={name} active={workstationIndex === 0}>
-                {0 === workstationIndex && (
+                {workstationIndex === 0 && (
                   <IconWrapper>
                     <Icon
                       type="material-community"
@@ -224,7 +226,7 @@ export function WorkoutManager() {
                   </IconWrapper>
                 )}
                 <Text>{name}</Text>
-                {0 === workstationIndex && (
+                {workstationIndex === 0 && (
                   <ControlWrapper
                     onPress={() => {
                       bottomSheetRef.current.snapTo(0);

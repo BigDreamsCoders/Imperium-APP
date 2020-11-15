@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import { SharedElement } from 'react-navigation-shared-element';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import LoginForm from '../forms/loginForm';
 import { formStyle } from '../style/form';
 import colors from '../utils/colors';
@@ -52,9 +53,9 @@ export function LoginScreen() {
   }, []);
   console.log(keyboardIsShowing);
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+    <KeyboardAwareScrollView
+      contentContainerStyle={styles.container}
+      resetScrollToCoords={{ x: 0, y: 0 }}>
       <StatusBar backgroundColor={colors.royal_blue} animated={true} />
 
       <View style={styles.logo}>
@@ -69,10 +70,16 @@ export function LoginScreen() {
         animation="slideInUp"
         duration={200}
         ref={formRef}
-        style={[formStyle.container, { flex: keyboardIsShowing ? 2 : 1 }]}>
+        style={[
+          formStyle.container,
+          {
+            flex: keyboardIsShowing ? 2 : 1,
+            justifyContent: keyboardIsShowing ? 'flex-start' : 'center',
+          },
+        ]}>
         <LoginForm buttonText="Sign in" onForgot={onForgot} />
       </Animatable.View>
-    </KeyboardAvoidingView>
+    </KeyboardAwareScrollView>
   );
 }
 
@@ -83,7 +90,6 @@ const styles = StyleSheet.create({
   },
   logo: {
     width,
-    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },

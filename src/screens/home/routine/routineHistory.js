@@ -71,9 +71,9 @@ export function RoutineHistory() {
     { initialData: [] },
   );
 
-  if (data.length === 0) {
-    return <NoHistory />;
-  } 
+  // if (data.length === 0) {
+  //   return <NoHistory />;
+  // }
 
   return (
     <Wrapper>
