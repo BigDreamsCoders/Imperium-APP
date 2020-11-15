@@ -5,6 +5,7 @@ import styled from 'styled-components/native';
 import { getUserRoutineHistory } from '../../../api/users';
 import { AuthContext } from '../../../context/auth';
 import colors from '../../../utils/colors';
+import { ResponsiveSize } from '../../../utils/helpers';
 
 const Wrapper = styled.View`
   background-color: ${colors.royal_blue_light};
@@ -18,14 +19,14 @@ const Wrapper = styled.View`
 
 const LastRoutineWrapper = styled.View`
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: space-around;
   height: 100%;
   padding: 0 20px;
 `;
 
 const Title = styled.Text`
   width: 100%;
-  font-size: 38px;
+  font-size: ${ResponsiveSize(18)}px;
   font-weight: bold;
   color: ${colors.yellow_patito};
   text-align: center;
@@ -33,7 +34,7 @@ const Title = styled.Text`
 
 const Value = styled.Text`
   color: ${colors.white};
-  font-size: 28px;
+  font-size: ${ResponsiveSize(12)}px;
 `;
 
 const TextWrapper = styled.View`
@@ -44,7 +45,7 @@ const TextWrapper = styled.View`
 
 const SectionWrapper = styled.View`
   width: 100%;
-  margin: 30px 0;
+  margin: 10% 0;
 `;
 
 function NoHistory() {
@@ -70,9 +71,9 @@ export function RoutineHistory() {
     { initialData: [] },
   );
 
-  /* if (data.length === 0) {
+  if (data.length === 0) {
     return <NoHistory />;
-  } */
+  } 
 
   return (
     <Wrapper>
