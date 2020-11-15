@@ -1,5 +1,5 @@
 import React, { forwardRef, useEffect, useRef, useState } from 'react';
-import { Keyboard, StyleSheet, View } from 'react-native';
+import { Keyboard, KeyboardAvoidingView, StyleSheet, View } from 'react-native';
 import { SharedElement } from 'react-navigation-shared-element';
 import { style } from '../style/logo';
 import * as Animatable from 'react-native-animatable';
@@ -35,9 +35,7 @@ export function ForgotScreen() {
   }, []);
 
   return (
-    <KeyboardAwareScrollView
-      contentContainerStyle={styles.container}
-      resetScrollToCoords={{ x: 0, y: 0 }}>
+    <KeyboardAvoidingView style={styles.container}>
       <BackArrow
         callback={() => {
           formRef.current.bounceOut();
@@ -56,14 +54,17 @@ export function ForgotScreen() {
         style={[
           formStyle.container,
           styles.formContainer,
-          { justifyContent: keyboardIsShowing ? 'flex-start' : 'center' },
+          {
+            flex: keyboardIsShowing ? 2 : 1,
+            justifyContent: keyboardIsShowing ? 'flex-start' : 'center',
+          },
         ]}
         animation="slideInUp"
         ref={formRef}
         duration={200}>
         <RestorePasswordForm />
       </Animatable.View>
-    </KeyboardAwareScrollView>
+    </KeyboardAvoidingView>
   );
 }
 

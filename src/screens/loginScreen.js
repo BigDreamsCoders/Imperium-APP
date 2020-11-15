@@ -90,6 +90,7 @@ const styles = StyleSheet.create({
   },
   logo: {
     width,
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },

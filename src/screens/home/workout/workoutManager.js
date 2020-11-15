@@ -85,6 +85,9 @@ const BottomSheetHeaderView = styled.View`
   width: 100%;
   height: 64px;
   padding: 10px;
+  background-color: ${colors.yellow};
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
 `;
 
 const FinishExercise = styled(Button)`
@@ -129,22 +132,27 @@ function StrengthQuestions() {
   return <Text color={colors.red}>Strenght xd</Text>;
 }
 
-function renderContent(onClose, workstation) {
+function renderHeader(onClose) {
+  return (
+    <BottomSheetHeaderView>
+      <CloseIconWrapper>
+        <Icon
+          type="material-community"
+          name="close"
+          size={34}
+          onPress={() => {
+            onClose(0);
+          }}
+        />
+      </CloseIconWrapper>
+    </BottomSheetHeaderView>
+  );
+}
+
+function renderContent(workstation) {
   const { workstationCategory, workstationType } = workstation;
   return (
     <BottomSheetView>
-      <BottomSheetHeaderView>
-        <CloseIconWrapper>
-          <Icon
-            type="material-community"
-            name="close"
-            size={34}
-            onPress={() => {
-              onClose(0);
-            }}
-          />
-        </CloseIconWrapper>
-      </BottomSheetHeaderView>
       <BottomSheetContentView>
         <Text
           color={colors.royal_blue}
@@ -247,15 +255,12 @@ export function WorkoutManager() {
       {isFetched && (
         <BottomSheet
           ref={bottomSheetRef}
-          snapPoints={[keyboardIsShowing ? '40%' : '55%', 0]}
+          snapPoints={['85%', 0]}
           initialSnap={1}
-          borderRadius={30}
-          renderContent={() =>
-            renderContent(onCloseModal, data.workstation[index])
-          }
+          renderContent={() => renderContent(data.workstation[index])}
+          renderHeader={() => renderHeader(onCloseModal)}
           enabledHeaderGestureInteraction={true}
           springConfig={{ toss: 20, damping: 30 }}
-          onCloseStart={() => Keyboard.dismiss()}
         />
       )}
     </Container>
