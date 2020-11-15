@@ -16,7 +16,7 @@ export const Button = styled.TouchableOpacity`
 `;
 
 export const StyledPrimaryButton = styled(Button)`
-  background-color: ${colors.yellow};
+  background-color: ${colors.yellow_patito};
 `;
 
 export const StyledButtonText = styled.Text`

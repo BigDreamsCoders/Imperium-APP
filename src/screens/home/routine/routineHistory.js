@@ -73,7 +73,7 @@ export function RoutineHistory() {
 
   // if (data.length === 0) {
   //   return <NoHistory />;
-  // } 
+  // }
 
   return (
     <Wrapper>
