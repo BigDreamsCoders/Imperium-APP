@@ -21,6 +21,7 @@ export const addRoutine = async ({ token, body }) => {
 };
 
 export const getRoutineById = async (token, id) => {
+  console.log(id);
   const {
     data: { data },
   } = await axiosInstance(token).get(`routine/${id}`);

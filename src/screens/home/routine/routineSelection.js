@@ -1,5 +1,5 @@
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import React, { useContext } from 'react';
 import { FlatList } from 'react-native';
 import { Icon } from 'react-native-elements';
@@ -10,6 +10,7 @@ import { getUserRoutineHistory, userSavedRoutines } from '../../../api/users';
 import { AuthContext } from '../../../context/auth';
 import { Container } from '../../../style/layouts';
 import colors from '../../../utils/colors';
+import constants from '../../../utils/constants';
 import { Layout } from '../components/layout';
 
 const Wrapper = styled.View`
@@ -38,7 +39,7 @@ const TabContainer = styled(Container)`
   padding: 4px 0;
 `;
 
-const Card = styled.View`
+const Card = styled.TouchableOpacity`
   width: 95%;
   height: 100px;
   align-self: center;
@@ -84,6 +85,7 @@ function AllRoutines() {
   const {
     state: { token },
   } = useContext(AuthContext);
+  const { params } = useRoute();
   const {
     data: { data },
   } = useQuery(
@@ -100,7 +102,10 @@ function AllRoutines() {
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => {
           return (
-            <Card>
+            <Card
+              onPress={() => {
+                params.navigateCallback(item.id);
+              }}>
               <Title>{item.name}</Title>
             </Card>
           );
@@ -114,6 +119,7 @@ function RoutineHistory() {
   const {
     state: { token },
   } = useContext(AuthContext);
+  const { params } = useRoute();
   const { data } = useQuery(
     'get-routine-history',
     async () => {
@@ -133,7 +139,10 @@ function RoutineHistory() {
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => {
             return (
-              <Card>
+              <Card
+                onPress={() => {
+                  params.navigateCallback(item.id);
+                }}>
                 <Title>{item.name}</Title>
               </Card>
             );
@@ -147,7 +156,12 @@ function RoutineHistory() {
 const Tab = createMaterialTopTabNavigator();
 
 export function RoutineSelection() {
-  const { goBack } = useNavigation();
+  const { goBack, navigate } = useNavigation();
+  const startRoutine = (id) => {
+    navigate(constants.SCREENS.WORKOUT_FLOW.ROUTINE_MANAGER, {
+      routineId: id,
+    });
+  };
   return (
     <Wrapper>
       <IconCloseWrap>
@@ -180,16 +194,31 @@ export function RoutineSelection() {
           name="SELECT_ROUTINE_HISTORY"
           options={{ tabBarLabel: 'Historial' }}
           component={RoutineHistory}
+          initialParams={{
+            navigateCallback: (id) => {
+              startRoutine(id);
+            },
+          }}
         />
         <Tab.Screen
           name="SELECT_ALL_ROUTINES"
           options={{ tabBarLabel: 'Todas' }}
           component={AllRoutines}
+          initialParams={{
+            navigateCallback: (id) => {
+              startRoutine(id);
+            },
+          }}
         />
         <Tab.Screen
           name="SELECT_SAVED_ROUTINES"
           options={{ tabBarLabel: 'Guardadas' }}
           component={SavedRoutines}
+          initialParams={{
+            navigateCallback: (id) => {
+              startRoutine(id);
+            },
+          }}
         />
       </Tab.Navigator>
     </Wrapper>

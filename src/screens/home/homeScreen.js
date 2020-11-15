@@ -9,6 +9,7 @@ import { NewRoutineScreen } from './routine/newRoutine';
 import { createSharedElementStackNavigator } from 'react-navigation-shared-element';
 import { RoutineSelection } from './routine/routineSelection';
 import { Chronometer } from './workout/chronometer';
+import { WorkoutManager } from './workout/workoutManager';
 
 const Tab = createMaterialBottomTabNavigator();
 
@@ -71,8 +72,8 @@ const routes = [
     component: RoutineSelection,
   },
   {
-    name: constants.SCREENS.WORKOUT_FLOW.ROUTINE_CHRONOMETER,
-    component: Chronometer,
+    name: constants.SCREENS.WORKOUT_FLOW.ROUTINE_MANAGER,
+    component: WorkoutManager,
   },
 ];
 

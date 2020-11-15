@@ -1,16 +1,17 @@
-import React, { Component, useEffect } from 'react';
+import React, { Component } from 'react';
 import { BackHandler } from 'react-native';
+
 import { showMessage } from 'react-native-flash-message';
+
 import styled from 'styled-components/native';
+
 import { Button } from '../../../style/button';
-import { Container } from '../../../style/layouts';
 import colors from '../../../utils/colors';
 
 const Text = styled.Text`
   color: ${(props) => props.color ?? colors.yellow_patito};
   font-size: ${(props) => props.size ?? 24}px;
   font-weight: bold;
-  text-align: center;
 `;
 
 const CircularButton = styled(Button)`
@@ -28,7 +29,7 @@ const ButtonWrapper = styled.View`
 `;
 
 const CountWrapper = styled.View`
-  flex: 3;
+  flex: 1;
   justify-content: center;
   align-items: center;
 `;
@@ -55,7 +56,6 @@ export class Chronometer extends Component {
     if (!running) {
       const newState = { running: true };
       if (!hasStarted) newState.hasStarted = true;
-      console.log(newState);
       this.setState(newState, () => {
         this.interval = setInterval(() => {
           const { milli, sec, min } = this.state;
@@ -107,9 +107,8 @@ export class Chronometer extends Component {
 
   render() {
     const { milli, min, sec, hasStarted, running } = this.state;
-    console.log(hasStarted);
     return (
-      <Container>
+      <>
         <CountWrapper>
           <Text size={96}>{`${fixNum(min)}:${fixNum(sec)}:${fixNum(
             milli,
@@ -125,7 +124,7 @@ export class Chronometer extends Component {
             </Text>
           </CircularButton>
         </ButtonWrapper>
-      </Container>
+      </>
     );
   }
 }

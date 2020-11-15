@@ -36,6 +36,7 @@
     "react-native-vector-icons": "^7.1.0",
     "react-navigation-shared-element": "^3.0.0",
     "react-query": "^2.26.2",
+    "reanimated-bottom-sheet": "^1.0.0-alpha.22",
     "styled-components": "^5.2.1"
   },
   "devDependencies": {

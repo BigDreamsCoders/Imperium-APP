@@ -15,7 +15,10 @@ const queryCache = new QueryCache();
 
 export function App() {
   useEffect(() => {
-    LogBox.ignoreLogs(['Setting a timer']);
+    LogBox.ignoreLogs([
+      'Setting a timer',
+      'Non-serializable values were found in the navigation state',
+    ]);
   }, []);
 
   const flashRef = useRef();

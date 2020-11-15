@@ -1,21 +1,17 @@
-import React, { useContext, useRef, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import {
   StyleSheet,
   TextInput,
   Text,
   View,
   Dimensions,
-  KeyboardAvoidingView,
   TouchableWithoutFeedback,
 } from 'react-native';
 import { AuthContext } from '../context/auth';
-import { Button, StyledButtonText, StyledPrimaryButton } from '../style/button';
+import { Button, StyledButtonText } from '../style/button';
 import colors from '../utils/colors';
-import * as Animatable from 'react-native-animatable';
 import { useNavigation } from '@react-navigation/native';
 import constants from '../utils/constants';
-import { formStyle } from './../style/form';
-import { SharedElement } from 'react-navigation-shared-element';
 import { login as onSubmit } from '../api/authentication';
 import { showMessage } from 'react-native-flash-message';
 import styled from 'styled-components/native';
@@ -102,7 +98,7 @@ const LoginForm = ({ buttonText, onForgot }) => {
 const styles = StyleSheet.create({
   inputWrapper: {
     paddingHorizontal: 20,
-    width: width,
+    width,
   },
   input: {
     height: 40,
