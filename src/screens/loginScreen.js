@@ -1,5 +1,5 @@
 import { useNavigation } from '@react-navigation/native';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   StyleSheet,
@@ -7,6 +7,7 @@ import {
   Dimensions,
   KeyboardAvoidingView,
   Platform,
+  Keyboard,
 } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import { SharedElement } from 'react-navigation-shared-element';
@@ -19,6 +20,7 @@ const { width } = Dimensions.get('screen');
 
 export function LoginScreen() {
   const formRef = useRef();
+  const [keyboardIsShowing, setKeyboardIsShowing] = useState(false);
   const { removeListener, addListener } = useNavigation();
   const onForgot = async () => {
     await formRef.current.bounceOut(200);
@@ -34,18 +36,27 @@ export function LoginScreen() {
     };
     addListener('focus', callbackIn);
     addListener('blur', callbackOut);
+    const fullSize = Keyboard.addListener('keyboardDidShow', () => {
+      setKeyboardIsShowing(true);
+    });
+    const normalSize = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardIsShowing(false);
+    });
     return () => {
       removeListener('focus', callbackIn);
       removeListener('blur', callbackOut);
+      Keyboard.removeSubscription(fullSize);
+      Keyboard.removeSubscription(normalSize);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
+  console.log(keyboardIsShowing);
   return (
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <StatusBar backgroundColor={colors.royal_blue} animated={true} />
+
       <View style={styles.logo}>
         <SharedElement id={'logo'}>
           <Animatable.Image
@@ -58,7 +69,7 @@ export function LoginScreen() {
         animation="slideInUp"
         duration={200}
         ref={formRef}
-        style={formStyle.container}>
+        style={[formStyle.container, { flex: keyboardIsShowing ? 2 : 1 }]}>
         <LoginForm buttonText="Sign in" onForgot={onForgot} />
       </Animatable.View>
     </KeyboardAvoidingView>

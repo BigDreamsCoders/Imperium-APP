@@ -1,5 +1,5 @@
-import React, { forwardRef, useEffect, useRef } from 'react';
-import { StyleSheet, View } from 'react-native';
+import React, { forwardRef, useEffect, useRef, useState } from 'react';
+import { Keyboard, StyleSheet, View } from 'react-native';
 import { SharedElement } from 'react-navigation-shared-element';
 import { style } from '../style/logo';
 import * as Animatable from 'react-native-animatable';
@@ -11,6 +11,7 @@ import { formStyle } from '../style/form';
 
 export function ForgotScreen() {
   const { goBack, addListener, removeListener } = useNavigation();
+  const [keyboardIsShowing, setKeyboardIsShowing] = useState(false);
   const formRef = useRef();
 
   useEffect(() => {
@@ -18,8 +19,16 @@ export function ForgotScreen() {
       formRef.current.bounceOut(300);
     };
     addListener('beforeRemove', callback);
+    const fullSize = Keyboard.addListener('keyboardDidShow', () => {
+      setKeyboardIsShowing(true);
+    });
+    const normalSize = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardIsShowing(false);
+    });
     return () => {
       removeListener('beforeRemove', callback);
+      Keyboard.removeSubscription(fullSize);
+      Keyboard.removeSubscription(normalSize);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -41,7 +50,11 @@ export function ForgotScreen() {
         </SharedElement>
       </View>
       <Animatable.View
-        style={StyleSheet.compose(formStyle.container, styles.formContainer)}
+        style={[
+          formStyle.container,
+          styles.formContainer,
+          { flex: keyboardIsShowing ? 3 : 1 },
+        ]}
         animation="slideInUp"
         ref={formRef}
         duration={200}>
