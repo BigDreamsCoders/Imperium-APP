@@ -88,6 +88,7 @@ function AllRoutines() {
   const { params } = useRoute();
   const {
     data: { data },
+    error,
   } = useQuery(
     'get-all-routines',
     async () => {
@@ -95,6 +96,7 @@ function AllRoutines() {
     },
     { placeholderData: [] },
   );
+  console.log(error);
   return (
     <TabContainer>
       <FlatList

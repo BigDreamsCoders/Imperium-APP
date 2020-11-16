@@ -1,9 +1,16 @@
-import React, { Component } from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { BackHandler } from 'react-native';
 
 import { showMessage } from 'react-native-flash-message';
 
 import styled from 'styled-components/native';
+import { TimeContext } from '../../../context/time';
 
 import { Button } from '../../../style/button';
 import colors from '../../../utils/colors';
@@ -36,95 +43,123 @@ const CountWrapper = styled.View`
 
 const fixNum = (num) => (num > 9 ? `${num}` : `0${num}`);
 
-export class Chronometer extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      milli: 0,
-      sec: 0,
-      min: 0,
-      running: false,
-      hasStarted: false,
-    };
-    this.onStart = this.onStart.bind(this);
-    this.onPause = this.onPause.bind(this);
-    this.interval = null;
-  }
+export function Chronometer({
+  shouldStop,
+  shouldRestart,
+  hasSelectedWorkstation,
+  selectWorkstaitonCallback,
+}) {
+  const { setTime } = useContext(TimeContext);
+  const [milli, setMilli] = useState(0);
+  const [sec, setSec] = useState(0);
+  const [min, setMin] = useState(0);
+  const [isRunning, setRunning] = useState(false);
+  const [hasStarted, setHasStarted] = useState(false);
+  const [greenText, setgreenText] = useState('Start');
+  const intervalRef = useRef(null);
 
-  onStart() {
-    const { running, hasStarted } = this.state;
-    if (!running) {
-      const newState = { running: true };
-      if (!hasStarted) newState.hasStarted = true;
-      this.setState(newState, () => {
-        this.interval = setInterval(() => {
-          const { milli, sec, min } = this.state;
-          if (milli !== 99) {
-            this.setState({
-              milli: milli + 1,
-            });
-          } else if (sec !== 59) {
-            this.setState({
-              milli: 0,
-              sec: sec + 1,
-            });
-          } else {
-            this.setState({
-              milli: 0,
-              sec: 0,
-              min: min + 1,
-            });
-          }
-        }, 1);
+  useEffect(() => {
+    const handleBackButton = () => {
+      showMessage({
+        message: 'Debes acabar tu rutina para salir',
+        type: 'warning',
+        color: colors.royal_blue,
+        animated: true,
+        hideOnPress: true,
+        titleStyle: { fontSize: 18, textAlign: 'center', fontWeight: 'bold' },
       });
+      return true;
+    };
+    BackHandler.addEventListener('hardwareBackPress', handleBackButton);
+    return () => {
+      BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
+    };
+  }, []);
+
+  const onStart = useCallback(() => {
+    if (!hasSelectedWorkstation) {
+      selectWorkstaitonCallback();
+      return;
     }
-  }
+    if (!isRunning) {
+      if (!hasStarted) {
+        setHasStarted(true);
+      }
+      setRunning(true);
+      intervalRef.current = setInterval(() => {
+        setMilli((milliValue) => {
+          if (milliValue === 99) {
+            setSec((secValue) => {
+              if (secValue === 59) {
+                setMin((minValue) => minValue + 1);
+                return 0;
+              }
+              return secValue + 1;
+            });
+            return 0;
+          }
+          return milliValue + 1;
+        });
+      }, 1);
+    }
+  }, [
+    hasStarted,
+    isRunning,
+    hasSelectedWorkstation,
+    selectWorkstaitonCallback,
+  ]);
 
-  onPause() {
-    clearInterval(this.interval);
-    this.setState({ running: false });
-  }
+  const onPause = useCallback(() => {
+    clearInterval(intervalRef.current);
+    setRunning(false);
+  }, []);
 
-  handleBackButton() {
-    showMessage({
-      message: 'Debes acabar tu rutina para salir',
-      type: 'warning',
-      color: colors.royal_blue,
-      animated: true,
-      hideOnPress: true,
-      titleStyle: { fontSize: 18, textAlign: 'center', fontWeight: 'bold' },
-    });
-    return true;
-  }
+  const onRestart = useCallback(() => {
+    clearInterval(intervalRef.current);
+    setRunning(false);
+    setMilli(0);
+    setSec(0);
+    setMin(0);
+  }, []);
 
-  componentDidMount() {
-    BackHandler.addEventListener('hardwareBackPress', this.handleBackButton);
-  }
+  useEffect(() => {
+    if (shouldStop) {
+      onPause();
+      setTime(`${fixNum(min)}:${fixNum(sec)}:${fixNum(milli)}`);
+    }
+    if (shouldRestart) {
+      onRestart();
+    }
+    if (!hasSelectedWorkstation) {
+      setgreenText('Workstation');
+    } else {
+      setgreenText('Start');
+    }
+  }, [
+    shouldStop,
+    shouldRestart,
+    hasSelectedWorkstation,
+    setgreenText,
+    onPause,
+  ]);
 
-  componentWillUnmount() {
-    BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton);
-  }
-
-  render() {
-    const { milli, min, sec, hasStarted, running } = this.state;
-    return (
-      <>
-        <CountWrapper>
-          <Text size={96}>{`${fixNum(min)}:${fixNum(sec)}:${fixNum(
-            milli,
-          )}`}</Text>
-        </CountWrapper>
-        <ButtonWrapper>
-          <CircularButton color={colors.red} onPress={this.onPause} opa>
-            <Text>Stop</Text>
-          </CircularButton>
-          <CircularButton color={colors.green} onPress={this.onStart}>
-            <Text color={`${colors.yellow_patito}${running ? '80' : ''}`}>
-              {hasStarted ? 'Resume' : 'Start'}
-            </Text>
-          </CircularButton>
-        </ButtonWrapper>
-      </>
-    );
-  }
+  return (
+    <>
+      <CountWrapper>
+        <Text size={96}>{`${fixNum(min)}:${fixNum(sec)}:${fixNum(
+          milli,
+        )}`}</Text>
+      </CountWrapper>
+      <ButtonWrapper>
+        <CircularButton color={colors.red} onPress={onPause} opa>
+          <Text>Stop</Text>
+        </CircularButton>
+        <CircularButton color={colors.green} onPress={onStart}>
+          <Text color={`${colors.yellow_patito}${isRunning ? '80' : ''}`}>
+            {greenText}
+          </Text>
+        </CircularButton>
+      </ButtonWrapper>
+    </>
+  );
 }

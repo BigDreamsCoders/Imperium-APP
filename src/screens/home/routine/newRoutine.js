@@ -5,7 +5,8 @@ import { FAB } from 'react-native-paper';
 import { SharedElement } from 'react-navigation-shared-element';
 import { useMutation, useQuery, useQueryCache } from 'react-query';
 import styled from 'styled-components/native';
-import { addRoutine, getWorkstationsCategory } from '../../../api/routine';
+import { addRoutine } from '../../../api/routine';
+import { getWorkstationsCategory } from '../../../api/workstation';
 import { Loader } from '../../../components/loader';
 import { AuthContext } from '../../../context/auth';
 import { Container } from '../../../style/layouts';
@@ -139,7 +140,7 @@ export function NewRoutineScreen({ navigation }) {
             onPress={() => {
               addNewRoutine({
                 token,
-                body: { name, workstation: workstationList },
+                body: { name, workstationCategories: workstationList },
               });
             }}
             color={colors.yellow_patito}

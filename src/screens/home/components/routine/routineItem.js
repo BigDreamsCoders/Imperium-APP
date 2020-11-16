@@ -47,32 +47,42 @@ const TimeText = styled.Text`
   color: ${colors.white}90;
 `;
 
-export function RoutineItem({ item, onBookmarkPress, id: userID }) {
+export function RoutineItem({ item, onBookmarkPress, id: userID, history }) {
   const { createdAt, name, saved, id, creator } = item;
+  console.log(item, 'esto esta bien raro');
   return (
     <Card>
-      <IconWrap>
-        <Icon
-          name={saved ? 'bookmark' : 'bookmark-outline'}
-          type="material-community"
-          color={colors.yellow_patito}
-          size={32}
-          onPress={() => {
-            onBookmarkPress(id);
-          }}
-        />
-      </IconWrap>
+      {onBookmarkPress && (
+        <IconWrap>
+          <Icon
+            name={saved ? 'bookmark' : 'bookmark-outline'}
+            type="material-community"
+            color={colors.yellow_patito}
+            size={32}
+            onPress={() => {
+              onBookmarkPress(id);
+            }}
+          />
+        </IconWrap>
+      )}
 
       <Text numberOfLines={1}>{name}</Text>
       <TimeTextWrapper>
         <TimeText>
-          Creado por{' '}
-          {creator.id === userID
-            ? 'ti '
-            : `${creator.firstName} ${creator.lastName} `}
+          {history
+            ? 'Hecha '
+            : `Creado por ${
+                creator.id === userID
+                  ? 'ti '
+                  : `${creator.firstName} ${creator.lastName} `
+              }`}
         </TimeText>
         <Time
-          time={moment(moment(createdAt).utc(true).toISOString())
+          time={moment(
+            moment(history ? history.createdAt : createdAt)
+              .utc(true)
+              .toISOString(),
+          )
             .utc(false)
             .toISOString()}
         />

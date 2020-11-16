@@ -1,24 +1,37 @@
 import React, {
   useCallback,
   useContext,
-  useEffect,
   useMemo,
   useRef,
   useState,
 } from 'react';
-import { useQuery } from 'react-query';
-import { useRoute } from '@react-navigation/native';
+import { useMutation, useQuery } from 'react-query';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import styled from 'styled-components/native';
 import BottomSheet from 'reanimated-bottom-sheet';
-import { Icon, Input } from 'react-native-elements';
+import { Icon } from 'react-native-elements';
 import { Loader } from '../../../components/loader';
 import { AuthContext } from '../../../context/auth';
-import { getRoutineById } from '../../../api/routine';
+import { completeRoutine, getRoutineById } from '../../../api/routine';
 import { Container } from '../../../style/layouts';
 import colors from '../../../utils/colors';
 import { Chronometer } from './chronometer';
 import { Keyboard, SafeAreaView } from 'react-native';
 import { Button } from '../../../style/button';
+import { TimeWrapper } from '../../../wrapper/Time';
+import { TimeContext } from '../../../context/time';
+import { Header, WorkstationSelection, Content } from './bottomSheet';
+import {
+  getAvailableWorkstationByCategory,
+  useWorkstation,
+} from '../../../api/workstation';
+import { showMessage } from 'react-native-flash-message';
+
+const Text = styled.Text`
+  color: ${(props) => props.color ?? colors.yellow_patito};
+  font-size: ${(props) => props.size ?? 24}px;
+  font-weight: bold;
+`;
 
 const IconWrapper = styled.View`
   position: absolute;
@@ -27,33 +40,19 @@ const IconWrapper = styled.View`
   align-items: center;
 `;
 
-const CloseIconWrapper = styled.View`
-  justify-content: center;
-  align-items: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 30px;
-  background-color: #00000040;
-`;
-
 const ControlWrapper = styled.TouchableOpacity`
   position: absolute;
   right: 10px;
 `;
 
-const Text = styled.Text`
-  color: ${(props) => props.color ?? colors.yellow_patito};
-  font-size: ${(props) => props.size ?? 24}px;
-  font-weight: bold;
-`;
-
 const WorkstationCardWrapper = styled.View`
   flex: 1;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   align-self: center;
   width: 90%;
   overflow: hidden;
+  margin: 10% 0 0;
 `;
 
 const WorkstationCard = styled.View`
@@ -67,152 +66,126 @@ const WorkstationCard = styled.View`
   border-radius: 8px;
 `;
 
-const BottomSheetView = styled.View`
-  width: 100%;
-  height: 100%;
-  background-color: ${colors.yellow_patito};
-`;
-
-const BottomSheetContentView = styled.View`
-  flex: 1;
-  margin: 0 10%;
-`;
-
-const BottomSheetHeaderView = styled.View`
-  flex-direction: row;
-  justify-content: flex-end;
-  align-items: flex-end;
-  width: 100%;
-  height: 64px;
-  padding: 10px;
-  background-color: ${colors.yellow};
-  border-top-left-radius: 20px;
-  border-top-right-radius: 20px;
-`;
-
-const FinishExercise = styled(Button)`
-  background-color: ${colors.royal_blue};
-`;
-
-const workstationTypeArray = ['Cardio', 'Strength'];
-
-function CardioQuestions() {
-  const [calories, setCalories] = useState('');
-  return (
-    <>
-      <Text color={colors.red}>¿Cuantas calorias marca la maquina?</Text>
-      <Input
-        style={{ backgroundColor: colors.yellow_patito }}
-        inputContainerStyle={{ borderBottomColor: colors.royal_blue }}
-        value={calories}
-        onChangeText={(e) => {
-          setCalories(e);
-        }}
-        keyboardType="decimal-pad"
-      />
-      <FinishExercise
-        disabled={calories === ''}
-        style={
-          calories === '' && {
-            backgroundColor: colors.gray,
-          }
-        }
-        onPress={() => {
-          console.log('ey ey ey aaaaaaqui rich');
-        }}>
-        <Text color={calories === '' ? colors.dark_gray : colors.white}>
-          Enviar
-        </Text>
-      </FinishExercise>
-    </>
-  );
-}
-
-function StrengthQuestions() {
-  return <Text color={colors.red}>Strenght xd</Text>;
-}
-
-function renderHeader(onClose) {
-  return (
-    <BottomSheetHeaderView>
-      <CloseIconWrapper>
-        <Icon
-          type="material-community"
-          name="close"
-          size={34}
-          onPress={() => {
-            onClose(0);
-          }}
-        />
-      </CloseIconWrapper>
-    </BottomSheetHeaderView>
-  );
-}
-
-function renderContent(workstation) {
-  const { workstationCategory, workstationType } = workstation;
-  return (
-    <BottomSheetView>
-      <BottomSheetContentView>
-        <Text
-          color={colors.royal_blue}
-          size={34}
-          style={{ fontWeight: 'bold' }}>
-          ¿Ya terminaste con {workstationCategory.name}?
-        </Text>
-
-        {workstationType.name === workstationTypeArray[0] ? (
-          <CardioQuestions />
-        ) : (
-          <StrengthQuestions />
-        )}
-      </BottomSheetContentView>
-    </BottomSheetView>
-  );
-}
-
-export function WorkoutManager() {
+function WorkoutManagerWrapper() {
   const {
-    state: { token },
+    state: {
+      token,
+      user: { id: userId },
+    },
   } = useContext(AuthContext);
+  const { time } = useContext(TimeContext);
   const bottomSheetRef = useRef(null);
-  const [index, setIndex] = useState(0);
 
-  const [keyboardIsShowing, setKeyboardIsShowing] = useState(false);
+  const [index, setIndex] = useState(0);
+  const [shouldStopChronometer, setShouldStopChronometer] = useState(false);
+  const [shouldRestartChronometer, setShouldStartChronometer] = useState(false);
+  const [hasSelectWorkstation, setHasSelectWorkstation] = useState(false);
+  const [routineData, setRoutineData] = useState([]);
+  const [workstationId, setWorkstationId] = useState(null);
+
   const { params } = useRoute();
+  const { goBack } = useNavigation();
+
   const { data, isFetching, isFetched } = useQuery(
     `get-routine-with-${params.routineId}`,
     async () => {
       return await getRoutineById(token, params.routineId);
     },
   );
+
+  const {
+    data: availableWorkstation,
+    refetch: refetchAvailableWorkstation,
+    isFetching: isFetchingAvailableWorkstation,
+  } = useQuery(
+    'get-workstation-available',
+    useCallback(async () => {
+      const { workstation } = data;
+      const { id } = workstation[index];
+      return await getAvailableWorkstationByCategory(token, id);
+    }, [index, data]),
+    { enabled: false },
+  );
+
+  const [
+    completeRoutineMutation,
+    { isLoading: completeLoading, error },
+  ] = useMutation(completeRoutine, {
+    onSuccess: () => {
+      setHasSelectWorkstation(true);
+      onCloseModal();
+      goBack();
+      showMessage({
+        message: 'Realizaste tu rutina con exito',
+        type: 'success',
+      });
+    },
+    onError: () => {
+      showMessage({
+        message: 'Ocurrio un error guardando tu rutina',
+        type: 'danger',
+      });
+    },
+  });
+  console.log(error);
+  const [useWorkstationMutation, { isLoading }] = useMutation(useWorkstation, {
+    onSuccess: () => {
+      onCloseModal();
+    },
+    onError: () => {
+      showMessage({
+        message: 'Ocurrio un error usando la maquina',
+        type: 'danger',
+      });
+      refetchAvailableWorkstation();
+    },
+  });
+
   const workstationCategories = useMemo(() => {
     if (!data) {
       return undefined;
     }
     const workstation = [...data.workstation];
-    return workstation.splice(index).map((e) => {
-      return e.workstationCategory;
-    });
+    return workstation.splice(index);
   }, [data, index]);
+
+  const openModal = useCallback(() => {
+    bottomSheetRef.current.snapTo(0);
+  }, []);
 
   const onCloseModal = useCallback(() => {
     bottomSheetRef.current.snapTo(1);
     Keyboard.dismiss();
+    setShouldStopChronometer(false);
   }, []);
 
-  useEffect(() => {
-    const fullSize = Keyboard.addListener('keyboardDidShow', () => {
-      setKeyboardIsShowing(true);
-    });
-    const normalSize = Keyboard.addListener('keyboardDidHide', () => {
-      setKeyboardIsShowing(false);
-    });
-    return () => {
-      Keyboard.removeSubscription(fullSize);
-      Keyboard.removeSubscription(normalSize);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  const saveOneWorkout = useCallback(
+    (calorificData) => {
+      setShouldStartChronometer(true);
+      setHasSelectWorkstation(false);
+      setRoutineData([
+        ...routineData,
+        { ...calorificData, time, workstation: workstationId },
+      ]);
+      const newIndex = index + 1;
+      if (newIndex < data.workstation.length) {
+        setIndex(newIndex);
+        onCloseModal();
+      } else {
+        completeRoutineMutation({
+          token,
+          data: { data: [...routineData], routine: params.routineId },
+        });
+      }
+    },
+    [data, time, workstationId, routineData, params.routineId],
+  );
+
+  const onSelectWorkstation = useCallback((id) => {
+    useWorkstationMutation({ id, userId, token, actionId: 1 });
+    setWorkstationId(id);
+    onCloseModal();
+    setHasSelectWorkstation(true);
   }, []);
 
   return (
@@ -238,10 +211,13 @@ export function WorkoutManager() {
                   <ControlWrapper
                     onPress={() => {
                       bottomSheetRef.current.snapTo(0);
+                      setShouldStopChronometer(true);
                     }}>
-                    <Text color={colors.white} size={16}>
-                      Terminar
-                    </Text>
+                    {hasSelectWorkstation && (
+                      <Text color={colors.white} size={16}>
+                        Terminar
+                      </Text>
+                    )}
                   </ControlWrapper>
                 )}
               </WorkstationCard>
@@ -251,18 +227,65 @@ export function WorkoutManager() {
           <Loader color={colors.yellow_patito} />
         )}
       </WorkstationCardWrapper>
-      <Chronometer />
+      <Chronometer
+        shouldStop={shouldStopChronometer}
+        shouldRestart={shouldRestartChronometer}
+        hasSelectedWorkstation={hasSelectWorkstation}
+        selectWorkstaitonCallback={() => {
+          openModal();
+        }}
+      />
       {isFetched && (
         <BottomSheet
           ref={bottomSheetRef}
           snapPoints={['85%', 0]}
           initialSnap={1}
-          renderContent={() => renderContent(data.workstation[index])}
-          renderHeader={() => renderHeader(onCloseModal)}
+          renderContent={() => {
+            if (!hasSelectWorkstation) {
+              return (
+                <WorkstationSelection
+                  token={token}
+                  workstation={data.workstation[index]}
+                  onClick={onSelectWorkstation}
+                  availableWorkstations={availableWorkstation}
+                  loading={isFetchingAvailableWorkstation}
+                />
+              );
+            }
+            return (
+              <Content
+                callback={saveOneWorkout}
+                time={time}
+                workstation={data.workstation[index]}
+              />
+            );
+          }}
+          renderHeader={() => (
+            <Header
+              onClose={onCloseModal}
+              loading={isLoading || completeLoading}
+            />
+          )}
           enabledHeaderGestureInteraction={true}
           springConfig={{ toss: 20, damping: 30 }}
+          onOpenStart={() => {
+            setShouldStopChronometer(true);
+            if (!hasSelectWorkstation) {
+              refetchAvailableWorkstation();
+            }
+          }}
+          onOpenEnd={() => {}}
+          enabledContentGestureInteraction={false}
         />
       )}
     </Container>
+  );
+}
+
+export function WorkoutManager() {
+  return (
+    <TimeWrapper>
+      <WorkoutManagerWrapper />
+    </TimeWrapper>
   );
 }

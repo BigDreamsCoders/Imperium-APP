@@ -246,15 +246,8 @@ function RoutineHistory() {
             />
           }
           renderItem={({ item }) => {
-            return (
-              <RoutineItem
-                item={{ ...item, saved: true }}
-                id={id}
-                onBookmarkPress={() => {
-                  toggle({ id: item.id, token });
-                }}
-              />
-            );
+            const { id } = item;
+            return <RoutineItem history={item} item={item.routine} id={id} />;
           }}
         />
       )}

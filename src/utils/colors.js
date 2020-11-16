@@ -7,5 +7,5 @@ export default {
   red: '#f0545480',
   green: '#3BB143',
   gray: '#d3d3d3',
-  dark_gray: '#3f3f3f',
+  dark_gray: '#f4f4f4',
 };
