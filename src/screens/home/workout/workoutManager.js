@@ -127,7 +127,6 @@ function WorkoutManagerWrapper() {
       });
     },
   });
-  console.log(error);
   const [useWorkstationMutation, { isLoading }] = useMutation(useWorkstation, {
     onSuccess: () => {
       onCloseModal();
@@ -167,6 +166,7 @@ function WorkoutManagerWrapper() {
         ...routineData,
         { ...calorificData, time, workstation: workstationId },
       ]);
+      useWorkstationMutation({ id: workstationId, userId, token, actionId: 2 });
       const newIndex = index + 1;
       if (newIndex < data.workstation.length) {
         setIndex(newIndex);

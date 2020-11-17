@@ -19,6 +19,7 @@ const Text = styled.Text`
   color: ${(props) => props.color ?? colors.yellow_patito};
   font-size: ${(props) => props.size ?? 24}px;
   font-weight: bold;
+  text-align: center;
 `;
 
 const CircularButton = styled(Button)`
@@ -131,7 +132,7 @@ export function Chronometer({
       onRestart();
     }
     if (!hasSelectedWorkstation) {
-      setgreenText('Workstation');
+      setgreenText('Maquina');
     } else {
       setgreenText('Start');
     }

@@ -53,10 +53,17 @@ const Message = styled.Text`
   font-size: 38px;
 `;
 
+const TimeWrapper = styled.View`
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+`;
+
 function SavedRoutines() {
   const {
     state: { token },
   } = useContext(AuthContext);
+  const { params } = useRoute();
   const { data } = useQuery(
     'get-saved-routines',
     async () => {
@@ -71,8 +78,11 @@ function SavedRoutines() {
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => {
           return (
-            <Card>
-              <Title margin={40}>{item.name}</Title>
+            <Card
+              onPress={() => {
+                params.navigateCallback(item.id);
+              }}>
+              <Title>{item.name}</Title>
             </Card>
           );
         }}
@@ -129,6 +139,7 @@ function RoutineHistory() {
     },
     { placeholderData: [] },
   );
+
   return (
     <TabContainer>
       {data.length === 0 ? (
@@ -140,12 +151,13 @@ function RoutineHistory() {
           data={data}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => {
+            console.log(item.routine.name);
             return (
               <Card
                 onPress={() => {
                   params.navigateCallback(item.id);
                 }}>
-                <Title>{item.name}</Title>
+                <Title color={colors.white}>{item.routine.name}</Title>
               </Card>
             );
           }}

@@ -1,11 +1,14 @@
-import React, { useContext } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import moment from 'moment';
+import React, { useContext, useEffect, useMemo } from 'react';
 import { View } from 'react-native';
 import { useQuery } from 'react-query';
 import styled from 'styled-components/native';
 import { getUserRoutineHistory } from '../../../api/users';
 import { AuthContext } from '../../../context/auth';
 import colors from '../../../utils/colors';
-import { ResponsiveSize } from '../../../utils/helpers';
+import { addToObject, ResponsiveSize } from '../../../utils/helpers';
+import { Loader } from './../../../components/loader';
 
 const Wrapper = styled.View`
   background-color: ${colors.royal_blue_light};
@@ -63,43 +66,107 @@ export function RoutineHistory() {
     state: { token },
   } = useContext(AuthContext);
 
-  const { data } = useQuery(
-    'get-history',
+  const { addListener, removeListener } = useNavigation();
+
+  const { data, isFetching, refetch, isFetched } = useQuery(
+    'get-initial-history',
     async () => {
       return await getUserRoutineHistory(token);
     },
-    { initialData: [] },
   );
 
-  // if (data.length === 0) {
-  //   return <NoHistory />;
-  // }
+  useEffect(() => {
+    addListener('focus', refetch);
+    () => {
+      removeListener('focus', refetch);
+    };
+  }, []);
+
+  const lastRoutine = useMemo(() => {
+    if (data) {
+      const routine = [...data].pop();
+      return {
+        routine: routine?.routine,
+        date: routine?.createdAt,
+      };
+    }
+    return undefined;
+  }, [data]);
+
+  const favoriteWorkstation = useMemo(() => {
+    if (data) {
+      const occurrences = data.reduce((acc, { routine }, index) => {
+        return {
+          ...routine.workstation.reduce(
+            (prev, { name }) => addToObject(prev, name),
+            acc,
+          ),
+        };
+      }, {});
+      const favorite = Object.keys(occurrences).sort((a, b) => {
+        return occurrences[b] - occurrences[a];
+      })[0];
+      return {
+        name: favorite,
+        count: occurrences[favorite],
+      };
+    }
+  }, [data]);
+
+  const favoriteRoutine = useMemo(() => {
+    if (data) {
+      const occurrences = data.reduce((prev, { routine }) => {
+        return addToObject(prev, routine.name);
+      }, {});
+      const favorite = Object.keys(occurrences).sort((a, b) => {
+        return occurrences[b] - occurrences[a];
+      })[0];
+      return {
+        name: favorite,
+        count: occurrences[favorite],
+      };
+    }
+  }, [data]);
+
+  if (data && data.length === 0) {
+    return <NoHistory />;
+  }
 
   return (
-    <Wrapper>
-      <LastRoutineWrapper>
-        <SectionWrapper>
-          <Title>Tu ultima rutina</Title>
-          <TextWrapper>
-            <Value>El nombre de la rutina</Value>
-            <Value> x</Value>
-          </TextWrapper>
-        </SectionWrapper>
-        <SectionWrapper>
-          <Title>Resumen semanal</Title>
-          <TextWrapper>
-            <Value>El nombre de la rutina</Value>
-            <Value> x</Value>
-          </TextWrapper>
-        </SectionWrapper>
-        <SectionWrapper>
-          <Title>Tu maquina favorita</Title>
-          <TextWrapper>
-            <Value>El nombre de la rutina</Value>
-            <Value> x</Value>
-          </TextWrapper>
-        </SectionWrapper>
-      </LastRoutineWrapper>
+    <Wrapper
+      justifyContent={isFetching ? 'center' : null}
+      alignItems={isFetching ? 'center' : null}>
+      {isFetching ? (
+        <Loader color={colors.yellow_patito} />
+      ) : (
+        <LastRoutineWrapper>
+          <SectionWrapper>
+            <Title>Tu ultima rutina</Title>
+            <TextWrapper>
+              <Value>{lastRoutine?.routine?.name}</Value>
+              <Value>
+                {moment(moment(lastRoutine?.createdAt).utc(true).toISOString())
+                  .utc(false)
+                  .format('DD/MM/YYYY')}
+              </Value>
+            </TextWrapper>
+          </SectionWrapper>
+          <SectionWrapper>
+            <Title>Tu maquina favorita</Title>
+            <TextWrapper>
+              <Value>{favoriteWorkstation.name}</Value>
+              <Value>Usada {favoriteWorkstation.count} veces</Value>
+            </TextWrapper>
+          </SectionWrapper>
+          <SectionWrapper>
+            <Title>Tu rutina favorita</Title>
+            <TextWrapper>
+              <Value>{favoriteRoutine.name}</Value>
+              <Value>{favoriteRoutine.count}</Value>
+            </TextWrapper>
+          </SectionWrapper>
+        </LastRoutineWrapper>
+      )}
     </Wrapper>
   );
 }

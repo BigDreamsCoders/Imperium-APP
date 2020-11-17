@@ -98,7 +98,6 @@ function CardioQuestions({ callback }) {
             if (caloriesNum < 0) throw Error();
             callback({ calories });
           } catch (e) {
-            console.log(e);
             showMessage({
               message: 'Las calorias solo pueden ser positivas',
               type: 'danger',
@@ -157,7 +156,6 @@ function StrengthQuestions({ callback }) {
             if (repsNum < 0) throw Error();
             callback({ repetition: repsNum, sets: setsNum });
           } catch (e) {
-            console.log(e);
             showMessage({
               message: 'Los datos solo pueden ser numeros enteros',
               type: 'danger',

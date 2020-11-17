@@ -24,8 +24,6 @@ export const userRoutines = async (token) => {
 };
 
 export const getUserRoutineHistory = async (token) => {
-  const {
-    data: { history },
-  } = await axiosInstance(token).get('users/me');
-  return history;
+  const { data } = await axiosInstance(token).get('users/me');
+  return data.history;
 };

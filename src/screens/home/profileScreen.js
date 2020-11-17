@@ -1,12 +1,17 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useMemo } from 'react';
 import { AuthContext } from '../../context/auth';
 import { Layout } from './components/layout';
 import colors from '../../utils/colors';
-import { ResponsiveSize } from '../../utils/helpers';
+import { ResponsiveSize, timeFormater } from '../../utils/helpers';
 import styled from 'styled-components/native';
-// import { useQuery } from 'react-query';
+import { useQuery } from 'react-query';
 import { View, Text } from 'react-native-animatable';
 import { ScrollView } from 'react-native-gesture-handler';
+import TimeAgo from 'react-native-timeago';
+import moment from 'moment';
+import { verifyToken } from '../../api/authentication';
+import { Loader } from './../../components/loader';
+import { useNavigation } from '@react-navigation/native';
 
 const Profile = styled.View`
   flex-direction: column;
@@ -46,58 +51,141 @@ const Line = styled.Text`
   background-color: ${colors.yellow_patito};
 `;
 
+const Time = styled(TimeAgo)`
+  color: ${colors.white};
+`;
+
 export function ProfileScreen() {
   const {
-    state: { user },
+    state: { token },
   } = useContext(AuthContext);
-  console.log(user);
+
+  const { addListener, removeListener } = useNavigation();
+
+  const { data: user, isFetching, refetch, status } = useQuery(
+    'get-user-profile-info',
+    async () => {
+      return await verifyToken(token);
+    },
+  );
+
+  const totalTime = useMemo(() => {
+    if (user) {
+      const { history } = user;
+      return history.reduce(
+        (acc, { data }) => {
+          return timeFormater(
+            acc,
+            data.reduce(
+              (prev, { time }) => {
+                console.log(prev);
+                const [minStr, secStr] = time.split(':');
+                try {
+                  const min = parseInt(minStr, 10);
+                  const sec = parseInt(secStr, 10);
+                  return timeFormater(prev, [0, min, sec]);
+                } catch (e) {
+                  console.log(e);
+                }
+              },
+              [0, 0, 0],
+            ),
+          );
+        },
+        [0, 0, 0],
+      );
+    }
+    return [0, 0, 0];
+  }, []);
+
+  const totalCalories = useMemo(() => {
+    if (user) {
+      const { history } = user;
+      return history.reduce((acc, { data }) => {
+        return (
+          acc +
+          data.reduce((prev, { calories }) => {
+            const caloriesNum = parseInt(calories, 10);
+            return caloriesNum ? caloriesNum + prev : prev;
+          }, 0)
+        );
+      }, 0);
+    }
+    return '';
+  }, [user]);
+
+  const dueData = useMemo(() => {
+    return user
+      ? moment(moment(user.createdAt).utc(true).toISOString())
+          .utc(false)
+          .add(1, 'M')
+          .format('D MMMM, YYYY')
+      : '';
+  }, [user]);
+
+  useEffect(() => {
+    addListener('focus', refetch);
+    return () => {
+      removeListener('focus', refetch);
+    };
+  }, []);
   return (
     <Layout>
-      <ScrollView>
-        <Profile>
-          <View>
-            <Title>Andres Quijada</Title>
-            <Data>Miembro desde 2019</Data>
-            <Data>San Salvador</Data>
-          </View>
-          <View>
+      {isFetching ? (
+        <Loader color={colors.yellow_patito} />
+      ) : (
+        <ScrollView>
+          <Profile>
             <View>
-              <SubTitle>Datos</SubTitle>
-              <DataWrapper>
-                <DataTitle>Tipo de membresía</DataTitle>
-                <Data>Premium xxx</Data>
-              </DataWrapper>
-              <Line />
-              <DataWrapper>
-                <DataTitle>costo</DataTitle>
-                <Data>$49.99</Data>
-              </DataWrapper>
-              <Line />
-              <DataWrapper>
-                <DataTitle>Fecha de vencimiento</DataTitle>
-                <Data>29 de abril de 2021</Data>
-              </DataWrapper>
+              <Title>{`${user.firstName} ${user.lastName}`}</Title>
+              <Data>
+                Miembro desde{' '}
+                <Time
+                  time={moment(moment(user.createdAt).utc(true).toISOString())
+                    .utc(false)
+                    .toISOString()}
+                />
+              </Data>
             </View>
             <View>
-              <SubTitle>Datos aerobicos</SubTitle>
-              <DataWrapper>
-                <DataTitle>Tiempo total</DataTitle>
-                <Data>3 h 35 min 35 s</Data>
-              </DataWrapper>
-              <Line />
-              <DataWrapper>
-                <DataTitle>Total de entrenamientos</DataTitle>
-                <Data>5</Data>
-              </DataWrapper>
-              <Line />
-              <DataWrapper>
-                <DataTitle>Total calorias quemadas</DataTitle>
-                <Data>3,751</Data>
-              </DataWrapper>
+              <View>
+                <SubTitle>Datos</SubTitle>
+                <DataWrapper>
+                  <DataTitle>Tipo de membresía</DataTitle>
+                  <Data>{user.membership.membershipType.name}</Data>
+                </DataWrapper>
+                <Line />
+                <DataWrapper>
+                  <DataTitle>Costo</DataTitle>
+                  <Data>${user.membership.membershipType.price}</Data>
+                </DataWrapper>
+                <Line />
+                <DataWrapper>
+                  <DataTitle>Próxima facturación</DataTitle>
+                  <Data>{dueData}</Data>
+                </DataWrapper>
+              </View>
+              <View>
+                <SubTitle>Datos aeróbicos</SubTitle>
+                <DataWrapper>
+                  <DataTitle>Tiempo total</DataTitle>
+                  <Data>{`${totalTime[0]}h ${totalTime[1]}m ${totalTime[2]}s`}</Data>
+                </DataWrapper>
+                <Line />
+                <DataWrapper>
+                  <DataTitle>Total de entrenamientos</DataTitle>
+                  <Data>{user.history.length}</Data>
+                </DataWrapper>
+                <Line />
+                <DataWrapper>
+                  <DataTitle>Total calorías quemadas</DataTitle>
+                  <Data>{totalCalories}</Data>
+                </DataWrapper>
+              </View>
             </View>
-          </View>
-        </Profile>
-      </ScrollView>
+          </Profile>
+        </ScrollView>
+      )}
     </Layout>
   );
 }

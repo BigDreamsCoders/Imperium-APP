@@ -49,7 +49,6 @@ const TimeText = styled.Text`
 
 export function RoutineItem({ item, onBookmarkPress, id: userID, history }) {
   const { createdAt, name, saved, id, creator } = item;
-  console.log(item, 'esto esta bien raro');
   return (
     <Card>
       {onBookmarkPress && (
