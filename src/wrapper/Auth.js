@@ -42,6 +42,11 @@ export function AuthWrapper({ children }) {
         await removeToken();
         dispatch({ type: actions.LOGOUT });
       },
+      updateUserInfo: async () => {
+        const token = await getToken();
+        const data = await verifyToken(token);
+        dispatch({ type: actions.RESTORE_TOKEN, token, user: data });
+      },
       state,
     }),
     [state],

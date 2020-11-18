@@ -9,7 +9,26 @@ import colors from '../utils/colors';
 const Stack = createSharedElementStackNavigator();
 const Drawer = createDrawerNavigator();
 
+const routes = (role) => {
+  const canRenderQRReader = role.privilege.filter((p) => {
+    return p.id === 8;
+  });
+  const navigator = [...mainNavigationItems];
+  if (canRenderQRReader.length === 0) {
+    const x = navigator.pop();
+    console.log(x);
+  }
+  console.log(canRenderQRReader, canRenderQRReader.length === 0);
+  console.log(navigator);
+  return navigator.map((item) => <Drawer.Screen key={item.name} {...item} />);
+};
+
 function MainNavigator() {
+  const {
+    state: {
+      user: { role },
+    },
+  } = useContext(AuthContext);
   return (
     <Drawer.Navigator
       drawerContent={(props) => <CustomDrawerContent {...props} />}
@@ -18,9 +37,7 @@ function MainNavigator() {
         activeTintColor: colors.yellow,
         inactiveTintColor: colors.yellow_patito,
       }}>
-      {mainNavigationItems.map((item) => {
-        return <Drawer.Screen key={item.name} {...item} />;
-      })}
+      {routes(role)}
     </Drawer.Navigator>
   );
 }

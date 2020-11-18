@@ -27,3 +27,18 @@ export const getUserRoutineHistory = async (token) => {
   const { data } = await axiosInstance(token).get('users/me');
   return data.history;
 };
+
+export const markEntrance = async ({ token, id }) => {
+  return await axiosInstance(token).put(`users/entrance/${id}`);
+};
+
+export const findUserFromScan = async (token, id) => {
+  const {
+    data: { firstName, lastName, isIdentified },
+  } = await axiosInstance(token).get(`users/${id}`);
+  return {
+    firstName,
+    lastName,
+    isIdentified,
+  };
+};

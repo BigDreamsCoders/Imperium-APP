@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import styled from 'styled-components/native';
 import { StyledPrimaryButton, StyledButtonText } from '../../style/button';
@@ -10,6 +10,7 @@ import { AuthContext } from '../../context/auth';
 import { RoutineHistory } from './routine/routineHistory';
 import { useNavigation } from '@react-navigation/native';
 import constants from '../../utils/constants';
+import { showMessage } from 'react-native-flash-message';
 
 const PrimaryButton = styled(StyledPrimaryButton)`
   width: 80%;
@@ -28,9 +29,17 @@ const Button = (props) => (
 export function WorkoutStarterScreen() {
   const {
     state: { user },
+    updateUserInfo,
   } = useContext(AuthContext);
 
-  const { navigate } = useNavigation();
+  const { navigate, addListener, removeListener } = useNavigation();
+
+  useEffect(() => {
+    addListener('focus', updateUserInfo);
+    return () => {
+      removeListener('focus', updateUserInfo);
+    };
+  }, []);
 
   return (
     <Layout text="Tus ultimos datos">
@@ -42,7 +51,14 @@ export function WorkoutStarterScreen() {
         <Animatable.View animation="bounceIn">
           <Button
             onPress={() => {
-              navigate(constants.SCREENS.WORKOUT_FLOW.ROUTINE_SELECTION);
+              if (user.isIdentified) {
+                navigate(constants.SCREENS.WORKOUT_FLOW.ROUTINE_SELECTION);
+              } else {
+                showMessage({
+                  message: 'Debes registrar tu entrada para poder entrenarte',
+                  type: 'danger',
+                });
+              }
             }}
           />
         </Animatable.View>

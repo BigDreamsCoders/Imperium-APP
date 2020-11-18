@@ -36,7 +36,7 @@ export function Header() {
             navigation.toggleDrawer();
           }}
         />
-        <MaterialIcons name="bell-outline" size={34} style={style.bell} />
+        {/* <MaterialIcons name="bell-outline" size={34} style={style.bell} /> */}
       </Container>
     </Wrapper>
   );
