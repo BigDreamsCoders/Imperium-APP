@@ -20,9 +20,10 @@ export const StyledPrimaryButton = styled(Button)`
 `;
 
 export const StyledButtonText = styled.Text`
-  font-size: 16px;
+  font-size: 24px;
   font-weight: 900;
   color: ${colors.royal_blue};
+  font-family: 'Oswald-Regular';
 `;
 
 export function BackArrow({ callback }) {

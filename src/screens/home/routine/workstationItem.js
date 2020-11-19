@@ -1,54 +1,62 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { Icon } from 'react-native-elements';
 import styled from 'styled-components/native';
+import colors from '../../../utils/colors';
 
 const Image = styled.Image`
-  width: 200px;
-  height: 200px;
+  width: 100%;
+  height: 100%;
 `;
 
-const Wrapper = styled.TouchableWithoutFeedback``;
+const Wrapper = styled.TouchableOpacity`
+  position: relative;
+  flex: 0.5;
+  aspect-ratio: 1;
+  margin: 1%;
+  height: 200px;
+  align-self: center;
+  background-color: ${(props) =>
+    props.active ? colors.yellow : `${colors.yellow_patito}`};
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+  overflow: hidden;
+`;
 
-const Name = styled.Text`
+const NameWrapper = styled.View`
+  flex: 1;
   position: absolute;
   bottom: 0;
   right: 0;
-  font-size: 24px;
-  border-radius: 4px;
+  min-height: 40px;
+  width: 100%;
+  padding-right: 5px;
   background-color: #00000080;
-  color: white;
+  justify-content: center;
 `;
 
-const ActiveWrapper = styled.View`
-  position: absolute;
-  top: 0;
-  left: 0;
+const Name = styled.Text`
+  font-size: 24px;
+  color: white;
+  text-align: center;
+  font-family: 'Oswald-Bold';
 `;
 
 export function WorkstationItem({ item, active, onPress }) {
   const { img, name } = item;
   return (
     <Wrapper
+      style={{ elevation: 4 }}
       onPress={() => {
         onPress(active);
-      }}>
-      <View>
+      }}
+      active={active}>
+      <>
         <Image source={{ uri: img }} />
-        <Name>{name}</Name>
-        <ActiveWrapper>
-          <Icon
-            name={active ? 'check-circle' : 'check-circle-outline'}
-            color="green"
-          />
-        </ActiveWrapper>
-      </View>
+        <NameWrapper>
+          <Name>{name}</Name>
+        </NameWrapper>
+      </>
     </Wrapper>
   );
 }
-
-const style = StyleSheet.create({
-  img: {
-    resizeMode: 'stretch',
-  },
-});

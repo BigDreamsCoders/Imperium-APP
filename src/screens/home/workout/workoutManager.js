@@ -1,6 +1,7 @@
 import React, {
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -16,7 +17,7 @@ import { completeRoutine, getRoutineById } from '../../../api/routine';
 import { Container } from '../../../style/layouts';
 import colors from '../../../utils/colors';
 import { Chronometer } from './chronometer';
-import { Keyboard, SafeAreaView } from 'react-native';
+import { AppState, Keyboard, SafeAreaView } from 'react-native';
 import { Button } from '../../../style/button';
 import { TimeWrapper } from '../../../wrapper/Time';
 import { TimeContext } from '../../../context/time';
@@ -26,11 +27,14 @@ import {
   useWorkstation,
 } from '../../../api/workstation';
 import { showMessage } from 'react-native-flash-message';
+import { ResponsiveSize } from '../../../utils/helpers';
+import { style } from '../../../style/logo';
 
 const Text = styled.Text`
   color: ${(props) => props.color ?? colors.yellow_patito};
-  font-size: ${(props) => props.size ?? 24}px;
-  font-weight: bold;
+  font-size: ${(props) =>
+    props.size ? ResponsiveSize(props.size) : ResponsiveSize(16)}px;
+  font-family: 'Oswald-Bold';
 `;
 
 const IconWrapper = styled.View`
@@ -64,6 +68,27 @@ const WorkstationCard = styled.View`
   margin: 2px 0;
   background-color: ${colors.royal_blue_light};
   border-radius: 8px;
+`;
+
+const RoutineName = styled(Text)`
+  flex: 5;
+  padding: 0 4px;
+`;
+
+const TopWrapper = styled.View`
+  flex-direction: row;
+  height: 50px;
+`;
+
+const CloseWrapper = styled.View`
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+`;
+
+const CloseIcon = styled.View`
+  background-color: ${colors.yellow_patito}80;
+  border-radius: 50px;
 `;
 
 function WorkoutManagerWrapper() {
@@ -127,15 +152,19 @@ function WorkoutManagerWrapper() {
       });
     },
   });
-  const [useWorkstationMutation, { isLoading }] = useMutation(useWorkstation, {
+  const [workstationUseMutation, { isLoading }] = useMutation(useWorkstation, {
     onSuccess: () => {
       onCloseModal();
+      setHasSelectWorkstation((value) => {
+        return !value;
+      });
     },
     onError: () => {
       showMessage({
         message: 'Ocurrio un error usando la maquina',
         type: 'danger',
       });
+      setWorkstationId(null);
       refetchAvailableWorkstation();
     },
   });
@@ -145,7 +174,7 @@ function WorkoutManagerWrapper() {
       return undefined;
     }
     const workstation = [...data.workstation];
-    return workstation.splice(index);
+    return workstation.splice(index, 3);
   }, [data, index]);
 
   const openModal = useCallback(() => {
@@ -161,12 +190,11 @@ function WorkoutManagerWrapper() {
   const saveOneWorkout = useCallback(
     (calorificData) => {
       setShouldStartChronometer(true);
-      setHasSelectWorkstation(false);
       setRoutineData([
         ...routineData,
         { ...calorificData, time, workstation: workstationId },
       ]);
-      useWorkstationMutation({ id: workstationId, userId, token, actionId: 2 });
+      workstationUseMutation({ id: workstationId, userId, token, actionId: 2 });
       const newIndex = index + 1;
       if (newIndex < data.workstation.length) {
         setIndex(newIndex);
@@ -182,16 +210,68 @@ function WorkoutManagerWrapper() {
   );
 
   const onSelectWorkstation = useCallback((id) => {
-    useWorkstationMutation({ id, userId, token, actionId: 1 });
+    workstationUseMutation({ id, userId, token, actionId: 1 });
     setWorkstationId(id);
-    onCloseModal();
-    setHasSelectWorkstation(true);
   }, []);
+
+  const onTerminatePress = () => {
+    if (time === '00:00:00') {
+      showMessage({
+        message: 'Debes empezar tu rutina antes de marcar datos',
+        type: 'danger',
+      });
+      return;
+    }
+    bottomSheetRef.current.snapTo(0);
+    setShouldStopChronometer(true);
+  };
+
+  const onEarlyExit = () => {
+    if (hasSelectWorkstation && time !== '00:00:00') {
+      showMessage({
+        message: 'Debes terminar tu ejercicio actual antes de salir',
+        type: 'warning',
+        color: colors.royal_blue,
+      });
+      return;
+    } else if (hasSelectWorkstation) {
+      workstationUseMutation({ id: workstationId, userId, token, actionId: 2 });
+      goBack();
+    } else {
+      if (routineData.length === 0) {
+        goBack();
+      } else {
+        completeRoutineMutation({
+          token,
+          data: { data: [...routineData], routine: params.routineId },
+        });
+        goBack();
+      }
+    }
+  };
 
   return (
     <Container>
       <SafeAreaView />
-      <Text size={36}>{data?.name}</Text>
+      <TopWrapper>
+        <RoutineName
+          size={24}
+          numberOfLines={1}
+          allowFontScaling
+          ellipsizeMode="tail">
+          {data?.name}
+        </RoutineName>
+        <CloseWrapper>
+          <CloseIcon>
+            <Icon
+              type="material-community"
+              name="close"
+              color={colors.yellow_patito}
+              onPress={onEarlyExit}
+            />
+          </CloseIcon>
+        </CloseWrapper>
+      </TopWrapper>
       <WorkstationCardWrapper>
         {isFetching !== true && workstationCategories ? (
           workstationCategories.map(({ name }, workstationIndex) => {
@@ -208,13 +288,9 @@ function WorkoutManagerWrapper() {
                 )}
                 <Text>{name}</Text>
                 {workstationIndex === 0 && (
-                  <ControlWrapper
-                    onPress={() => {
-                      bottomSheetRef.current.snapTo(0);
-                      setShouldStopChronometer(true);
-                    }}>
+                  <ControlWrapper onPress={onTerminatePress}>
                     {hasSelectWorkstation && (
-                      <Text color={colors.white} size={16}>
+                      <Text color={colors.white} size={12}>
                         Terminar
                       </Text>
                     )}

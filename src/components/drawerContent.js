@@ -6,6 +6,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import styled from 'styled-components/native';
 import colors from '../utils/colors';
 import { AuthContext } from '../context/auth';
+import { ResponsiveSize } from '../utils/helpers';
 
 const StyledImage = styled.Image`
   flex: 1;
@@ -50,7 +51,11 @@ export function CustomDrawerContent(props) {
         <DrawerContent {...props} />
       </ScrollView>
       <LogoutButton onPress={logout}>
-        <MaterialIcons name="logout" size={34} color={colors.white} />
+        <MaterialIcons
+          name="logout"
+          size={ResponsiveSize(14)}
+          color={colors.white}
+        />
         <LogoutText>Logout</LogoutText>
       </LogoutButton>
     </SafeAreaView>

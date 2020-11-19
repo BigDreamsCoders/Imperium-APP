@@ -4,6 +4,7 @@ import colors from '../../../../utils/colors';
 import { Icon } from 'react-native-elements';
 import TimeAgo from 'react-native-timeago';
 import moment from 'moment';
+import { dateParser } from '../../../../utils/helpers';
 
 const Card = styled.View`
   position: relative;
@@ -20,6 +21,7 @@ const Text = styled.Text`
   font-weight: 100;
   font-size: 36px;
   padding-left: 10px;
+  font-family: 'Oswald-Regular';
 `;
 
 const IconWrap = styled.View`
@@ -31,7 +33,7 @@ const IconWrap = styled.View`
   z-index: 10;
 `;
 
-const TimeTextWrapper = styled.View`
+export const TimeTextWrapper = styled.View`
   position: absolute;
   flex-direction: row;
   align-items: center;
@@ -39,12 +41,14 @@ const TimeTextWrapper = styled.View`
   right: 8px;
 `;
 
-const Time = styled(TimeAgo)`
+export const Time = styled(TimeAgo)`
   color: ${colors.white}90;
+  font-family: 'Oswald-Bold';
 `;
 
-const TimeText = styled.Text`
+export const TimeText = styled.Text`
   color: ${colors.white}90;
+  font-family: 'Oswald-Bold';
 `;
 
 export function RoutineItem({ item, onBookmarkPress, id: userID, history }) {
@@ -77,13 +81,9 @@ export function RoutineItem({ item, onBookmarkPress, id: userID, history }) {
               }`}
         </TimeText>
         <Time
-          time={moment(
-            moment(history ? history.createdAt : createdAt)
-              .utc(true)
-              .toISOString(),
-          )
-            .utc(false)
-            .toISOString()}
+          time={dateParser(
+            history ? new Date(history.createdAt) : new Date(createdAt),
+          )}
         />
       </TimeTextWrapper>
     </Card>

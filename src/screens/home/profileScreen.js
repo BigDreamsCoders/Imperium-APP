@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useMemo } from 'react';
 import { AuthContext } from '../../context/auth';
 import { Layout } from './components/layout';
 import colors from '../../utils/colors';
-import { ResponsiveSize, timeFormater } from '../../utils/helpers';
+import { dateParser, ResponsiveSize, timeFormater } from '../../utils/helpers';
 import styled from 'styled-components/native';
 import { useQuery } from 'react-query';
 import { View, Text } from 'react-native-animatable';
@@ -25,23 +25,25 @@ const DataWrapper = styled.View`
 
 const Title = styled.Text`
   font-size: ${ResponsiveSize(20)}px;
-  font-weight: bold;
   color: ${colors.yellow};
+  font-family: 'Oswald-Bold';
 `;
 
 const SubTitle = styled.Text`
   font-size: ${ResponsiveSize(15)}px;
-  font-weight: bold;
+  font-family: 'Oswald-Bold';
   color: ${colors.yellow_patito};
   padding: 20px 0 0;
 `;
 
 const DataTitle = styled.Text`
+  font-family: 'Oswald-Regular';
   font-size: ${ResponsiveSize(14)}px;
   color: ${colors.yellow};
 `;
 
 const Data = styled.Text`
+  font-family: 'Oswald-Regular';
   font-size: ${ResponsiveSize(13)}px;
   color: ${colors.white};
 `;
@@ -116,7 +118,7 @@ export function ProfileScreen() {
 
   const dueData = useMemo(() => {
     return user
-      ? moment(moment(user.createdAt).utc(true).toISOString())
+      ? moment(moment(user.createdAt).utc(false).toISOString())
           .utc(false)
           .add(1, 'M')
           .format('D MMMM, YYYY')
@@ -140,11 +142,7 @@ export function ProfileScreen() {
               <Title>{`${user.firstName} ${user.lastName}`}</Title>
               <Data>
                 Miembro desde{' '}
-                <Time
-                  time={moment(moment(user.createdAt).utc(true).toISOString())
-                    .utc(false)
-                    .toISOString()}
-                />
+                <Time time={dateParser(new Date(user.createdAt))} />
               </Data>
             </View>
             <View>

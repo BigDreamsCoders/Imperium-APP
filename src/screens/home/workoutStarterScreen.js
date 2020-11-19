@@ -20,7 +20,7 @@ const PrimaryButton = styled(StyledPrimaryButton)`
 
 const Button = (props) => (
   <PrimaryButton {...props}>
-    <StyledButtonText style={style.buttonText} numberOfLines={1}>
+    <StyledButtonText numberOfLines={1}>
       Comenzar entrenamiento
     </StyledButtonText>
   </PrimaryButton>
@@ -66,9 +66,3 @@ export function WorkoutStarterScreen() {
     </Layout>
   );
 }
-
-const style = StyleSheet.create({
-  buttonText: {
-    fontSize: 24,
-  },
-});

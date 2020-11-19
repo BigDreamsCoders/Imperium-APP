@@ -29,15 +29,16 @@ const LastRoutineWrapper = styled.View`
 
 const Title = styled.Text`
   width: 100%;
-  font-size: ${ResponsiveSize(18)}px;
-  font-weight: bold;
+  font-size: ${ResponsiveSize(20)}px;
   color: ${colors.yellow_patito};
   text-align: center;
+  font-family: 'Oswald-Bold';
 `;
 
 const Value = styled.Text`
   color: ${colors.white};
-  font-size: ${ResponsiveSize(12)}px;
+  font-size: ${ResponsiveSize(14)}px;
+  font-family: 'Oswald-Regular';
 `;
 
 const TextWrapper = styled.View`

@@ -1,6 +1,7 @@
 import { Dimensions } from 'react-native';
+import moment from 'moment';
 
-const deviceHeight = Dimensions.get('window').height;
+const { height: deviceHeight } = Dimensions.get('window');
 
 export const ResponsiveSize = (size) => {
   console.log(size);
@@ -8,7 +9,7 @@ export const ResponsiveSize = (size) => {
     return size;
   } else if (deviceHeight <= 667) return size * 1.17;
   else if (deviceHeight <= 736) return size * 1.29;
-  else if (deviceHeight <= 1024) return size * 1.8;
+  else if (deviceHeight <= 1024) return size * 1.5;
 };
 
 export const timeFormater = (prev, current) => {
@@ -46,4 +47,8 @@ export const addToObject = (prev, name) => {
     ...prev,
     [name]: 1,
   };
+};
+
+export const dateParser = (date) => {
+  return moment(date).utc(true).toISOString();
 };

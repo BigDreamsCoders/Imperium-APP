@@ -14,12 +14,14 @@ import { TimeContext } from '../../../context/time';
 
 import { Button } from '../../../style/button';
 import colors from '../../../utils/colors';
+import { ResponsiveSize } from '../../../utils/helpers';
 
 const Text = styled.Text`
   color: ${(props) => props.color ?? colors.yellow_patito};
-  font-size: ${(props) => props.size ?? 24}px;
-  font-weight: bold;
+  font-size: ${(props) =>
+    props.size ? ResponsiveSize(props.size) : ResponsiveSize(18)}px;
   text-align: center;
+  font-family: 'Oswald-Bold';
 `;
 
 const CircularButton = styled(Button)`
@@ -113,6 +115,7 @@ export function Chronometer({
   const onPause = useCallback(() => {
     clearInterval(intervalRef.current);
     setRunning(false);
+    setTime(`${fixNum(min)}:${fixNum(sec)}:${fixNum(milli)}`);
   }, []);
 
   const onRestart = useCallback(() => {
@@ -147,7 +150,7 @@ export function Chronometer({
   return (
     <>
       <CountWrapper>
-        <Text size={96}>{`${fixNum(min)}:${fixNum(sec)}:${fixNum(
+        <Text size={50}>{`${fixNum(min)}:${fixNum(sec)}:${fixNum(
           milli,
         )}`}</Text>
       </CountWrapper>

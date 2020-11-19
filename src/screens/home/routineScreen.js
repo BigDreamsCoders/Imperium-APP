@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { useContext, useEffect } from 'react';
-import { FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native';
+import { FlatList, RefreshControl, StyleSheet } from 'react-native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { useMutation, useQuery, useQueryCache } from 'react-query';
 import styled from 'styled-components/native';
@@ -28,6 +28,10 @@ const TextWrapper = styled.View`
   flex: 1;
   justify-content: center;
   align-items: center;
+`;
+
+const Text = styled.Text`
+  font-family: 'Oswald-Regular';
 `;
 
 function AllRoutines() {

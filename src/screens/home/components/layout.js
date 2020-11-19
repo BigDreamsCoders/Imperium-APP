@@ -17,7 +17,7 @@ const Text = styled.Text`
   margin: 10% 0 10% 30px;
   color: ${colors.white};
   font-size: 36px;
-  font-weight: bold;
+  font-family: 'Oswald-Regular';
 `;
 
 export function Layout({ children, text }) {

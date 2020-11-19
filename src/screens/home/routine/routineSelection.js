@@ -1,6 +1,6 @@
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { FlatList } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { useQuery } from 'react-query';
@@ -11,7 +11,12 @@ import { AuthContext } from '../../../context/auth';
 import { Container } from '../../../style/layouts';
 import colors from '../../../utils/colors';
 import constants from '../../../utils/constants';
-import { Layout } from '../components/layout';
+import { dateParser } from '../../../utils/helpers';
+import {
+  Time,
+  TimeText,
+  TimeTextWrapper,
+} from './../components/routine/routineItem';
 
 const Wrapper = styled.View`
   width: 100%;
@@ -33,6 +38,7 @@ const Title = styled.Text`
   font-size: 38px;
   margin: ${(props) => props.margin ?? 20}px;
   text-align: justify;
+  font-family: 'Oswald-Regular';
 `;
 
 const TabContainer = styled(Container)`
@@ -53,24 +59,25 @@ const Message = styled.Text`
   font-size: 38px;
 `;
 
-const TimeWrapper = styled.View`
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-`;
-
 function SavedRoutines() {
   const {
     state: { token },
   } = useContext(AuthContext);
   const { params } = useRoute();
-  const { data } = useQuery(
+  const { addListener, removeListener } = useNavigation();
+  const { data, refetch } = useQuery(
     'get-saved-routines',
     async () => {
       return await userSavedRoutines(token);
     },
     { placeholderData: [] },
   );
+  useEffect(() => {
+    addListener('focus', refetch);
+    return () => {
+      removeListener('focus', refetch);
+    };
+  }, []);
   return (
     <TabContainer>
       <FlatList
@@ -96,9 +103,10 @@ function AllRoutines() {
     state: { token },
   } = useContext(AuthContext);
   const { params } = useRoute();
+  const { addListener, removeListener } = useNavigation();
   const {
     data: { data },
-    error,
+    refetch,
   } = useQuery(
     'get-all-routines',
     async () => {
@@ -106,7 +114,13 @@ function AllRoutines() {
     },
     { placeholderData: [] },
   );
-  console.log(error);
+  useEffect(() => {
+    addListener('focus', refetch);
+    return () => {
+      removeListener('focus', refetch);
+    };
+  }, []);
+
   return (
     <TabContainer>
       <FlatList
@@ -132,13 +146,21 @@ function RoutineHistory() {
     state: { token },
   } = useContext(AuthContext);
   const { params } = useRoute();
-  const { data } = useQuery(
+  const { addListener, removeListener } = useNavigation();
+  const { data, refetch } = useQuery(
     'get-routine-history',
     async () => {
-      return await getUserRoutineHistory(token);
+      return (await getUserRoutineHistory(token)).reverse();
     },
     { placeholderData: [] },
   );
+
+  useEffect(() => {
+    addListener('focus', refetch);
+    return () => {
+      removeListener('focus', refetch);
+    };
+  }, []);
 
   return (
     <TabContainer>
@@ -151,13 +173,20 @@ function RoutineHistory() {
           data={data}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => {
-            console.log(item.routine.name);
+            const { createdAt, id, routine } = item;
             return (
               <Card
                 onPress={() => {
-                  params.navigateCallback(item.id);
+                  params.navigateCallback(id);
                 }}>
-                <Title color={colors.white}>{item.routine.name}</Title>
+                <Title color={colors.white}>{routine.name}</Title>
+                <>
+                  <TimeTextWrapper>
+                    <TimeText> Hecha </TimeText>
+
+                    <Time time={dateParser(createdAt)} />
+                  </TimeTextWrapper>
+                </>
               </Card>
             );
           }}
@@ -176,6 +205,7 @@ export function RoutineSelection() {
       routineId: id,
     });
   };
+
   return (
     <Wrapper>
       <IconCloseWrap>

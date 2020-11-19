@@ -1,5 +1,5 @@
 import { useNavigation } from '@react-navigation/native';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import {
   View,
   StyleSheet,
@@ -16,10 +16,22 @@ import LoginForm from '../forms/loginForm';
 import { formStyle } from '../style/form';
 import colors from '../utils/colors';
 import { style as logoStyle } from './../style/logo';
+import { AuthContext } from '../context/auth';
+import styled from 'styled-components/native';
+import { Loader } from '../components/loader';
 
 const { width } = Dimensions.get('screen');
 
+const LoaderWrapper = styled.View`
+  top: 10px;
+  right: 10px;
+`;
+
 export function LoginScreen() {
+  const {
+    state: { isLoading },
+  } = useContext(AuthContext);
+
   const formRef = useRef();
   const [keyboardIsShowing, setKeyboardIsShowing] = useState(false);
   const { removeListener, addListener } = useNavigation();
@@ -57,7 +69,11 @@ export function LoginScreen() {
       contentContainerStyle={styles.container}
       resetScrollToCoords={{ x: 0, y: 0 }}>
       <StatusBar backgroundColor={colors.royal_blue} animated={true} />
-
+      {isLoading && (
+        <LoaderWrapper>
+          <Loader color={colors.yellow_patito} />
+        </LoaderWrapper>
+      )}
       <View style={styles.logo}>
         <SharedElement id={'logo'}>
           <Animatable.Image

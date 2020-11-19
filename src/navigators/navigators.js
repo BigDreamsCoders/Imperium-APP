@@ -1,10 +1,15 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { createSharedElementStackNavigator } from 'react-navigation-shared-element';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { AuthContext } from '../context/auth';
 import { authNavigationItems, mainNavigationItems } from './items';
 import { CustomDrawerContent } from '../components/drawerContent';
 import colors from '../utils/colors';
+import styled from 'styled-components/native';
+import { Loader } from '../components/loader';
+import { Header } from '../components/header';
+import { StatusBar } from 'react-native';
+import { useQuery } from 'react-query';
 
 const Stack = createSharedElementStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -15,30 +20,44 @@ const routes = (role) => {
   });
   const navigator = [...mainNavigationItems];
   if (canRenderQRReader.length === 0) {
-    const x = navigator.pop();
-    console.log(x);
+    navigator.pop();
   }
-  console.log(canRenderQRReader, canRenderQRReader.length === 0);
-  console.log(navigator);
   return navigator.map((item) => <Drawer.Screen key={item.name} {...item} />);
 };
 
+const Loading = styled.View`
+  flex: 1;
+  background-color: ${colors.royal_blue};
+`;
+
 function MainNavigator() {
-  const {
-    state: {
-      user: { role },
-    },
-  } = useContext(AuthContext);
+  const { state, updateUserInfo } = useContext(AuthContext);
+
+  useEffect(() => {
+    if (!state.user) {
+      updateUserInfo();
+    }
+  }, []);
+
   return (
-    <Drawer.Navigator
-      drawerContent={(props) => <CustomDrawerContent {...props} />}
-      drawerStyle={{ backgroundColor: colors.royal_blue_light }}
-      drawerContentOptions={{
-        activeTintColor: colors.yellow,
-        inactiveTintColor: colors.yellow_patito,
-      }}>
-      {routes(role)}
-    </Drawer.Navigator>
+    <>
+      {!state.user ? (
+        <Loading>
+          <StatusBar backgroundColor={colors.royal_blue} />
+          <Loader color={colors.yellow_patito} />
+        </Loading>
+      ) : (
+        <Drawer.Navigator
+          drawerContent={(props) => <CustomDrawerContent {...props} />}
+          drawerStyle={{ backgroundColor: colors.royal_blue_light }}
+          drawerContentOptions={{
+            activeTintColor: colors.yellow,
+            inactiveTintColor: colors.yellow_patito,
+          }}>
+          {routes(state.user.role)}
+        </Drawer.Navigator>
+      )}
+    </>
   );
 }
 

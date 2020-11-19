@@ -39,12 +39,16 @@ const TextInput = styled(Input)`
 const Text = styled.Text`
   color: ${colors.royal_blue};
   font-size: 32px;
-  font-weight: bold;
   margin-left: 10px;
+  font-family: 'Oswald-Bold';
 `;
 
 const List = styled.FlatList`
   margin-top: 20px;
+`;
+
+const Cell = styled.View`
+  align-items: center;
 `;
 
 export function NewRoutineScreen({ navigation }) {
@@ -78,6 +82,20 @@ export function NewRoutineScreen({ navigation }) {
     },
   });
 
+  const onComplete = () => {
+    if (workstationList.length === 0) {
+      showMessage({
+        message: 'Debes agregar almenos una máquina',
+        type: 'danger',
+      });
+      return;
+    }
+    addNewRoutine({
+      token,
+      body: { name, workstationCategories: workstationList },
+    });
+  };
+
   return (
     <Wrapper>
       <IconCloseWrap>
@@ -99,7 +117,7 @@ export function NewRoutineScreen({ navigation }) {
         onChangeText={(value) => setName(value)}
         inputContainerStyle={{ borderBottomColor: colors.royal_blue }}
       />
-      <Text>Selecciona que harás</Text>
+      <Text>Selecciona qué harás</Text>
       <Wrapper>
         {isFetching ? (
           <Loader color={colors.royal_blue} />
@@ -108,6 +126,15 @@ export function NewRoutineScreen({ navigation }) {
             data={data}
             numColumns={2}
             keyExtractor={(item) => item.id.toString()}
+            CellRendererComponent={({
+              index,
+              item,
+              children,
+              style,
+              ...props
+            }) => {
+              return <Cell {...props}>{children}</Cell>;
+            }}
             renderItem={({ item }) => {
               const active = workstationList.some((i) => i === item.id);
               return (
@@ -137,12 +164,7 @@ export function NewRoutineScreen({ navigation }) {
               margin: 16,
               backgroundColor: colors.royal_blue,
             }}
-            onPress={() => {
-              addNewRoutine({
-                token,
-                body: { name, workstationCategories: workstationList },
-              });
-            }}
+            onPress={onComplete}
             color={colors.yellow_patito}
           />
         </IconDoneWrapper>
