@@ -35,7 +35,7 @@ const TextWrapper = styled.View`
 const Text = styled.Text`
   color: ${colors.yellow_patito};
   font-size: ${ResponsiveSize(40)}px;
-  align-self: center;
+  text-align: center;
   font-family: 'Oswald-Regular';
 `;
 
@@ -234,7 +234,7 @@ function RoutineHistory() {
     <Wrapper>
       {data.length === 0 ? (
         <TextWrapper>
-          <Text>Aun no has hecho rutinas</Text>
+          <Text>Aquí encontraras las rutinas que hayas hecho</Text>
         </TextWrapper>
       ) : (
         <FlatList

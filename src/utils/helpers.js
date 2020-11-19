@@ -52,5 +52,5 @@ export const addToObject = (prev, name) => {
 };
 
 export const dateParser = (date) => {
-  return moment(date).utc(true).toISOString();
+  return moment(date).utc(false).toISOString();
 };
