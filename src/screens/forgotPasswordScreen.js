@@ -1,19 +1,58 @@
-import React, { forwardRef, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Keyboard, KeyboardAvoidingView, StyleSheet, View } from 'react-native';
 import { SharedElement } from 'react-navigation-shared-element';
 import { style } from '../style/logo';
 import * as Animatable from 'react-native-animatable';
 import colors from '../utils/colors';
 import { useNavigation } from '@react-navigation/native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { RestorePasswordForm } from '../forms/restorPasswordForm';
 import { BackArrow } from '../style/button';
 import { formStyle } from '../style/form';
+import { useMutation } from 'react-query';
+import { restorePassword } from '../api/users';
+import styled from 'styled-components/native';
+import { Loader } from '../components/loader';
+import { showMessage } from 'react-native-flash-message';
+
+const LoaderWrapper = styled.View`
+  position: absolute;
+  top: 10px;
+  right: 10px;
+`;
 
 export function ForgotScreen() {
   const { goBack, addListener, removeListener } = useNavigation();
   const [keyboardIsShowing, setKeyboardIsShowing] = useState(false);
   const formRef = useRef();
+
+  const [restoreMutation, { isLoading }] = useMutation(restorePassword, {
+    onSuccess: () => {
+      goBack();
+      showMessage({
+        message: 'Se ha reenviado una contraseña a tu correo',
+        type: 'success',
+      });
+    },
+    onError: (e) => {
+      const message = {
+        message: 'No nos pudimos conectar con el servidor',
+        type: 'danger',
+      };
+      if (e?.response?.data) {
+        switch (e.response.data.statusCode) {
+          case 400: {
+            message.message = 'Usuario no encontrado';
+            break;
+          }
+          default: {
+            message.message = 'Algo salió mal';
+            break;
+          }
+        }
+      }
+      showMessage(message);
+    },
+  });
 
   useEffect(() => {
     const callback = () => {
@@ -42,6 +81,11 @@ export function ForgotScreen() {
           goBack();
         }}
       />
+      {isLoading && (
+        <LoaderWrapper>
+          <Loader color={colors.yellow_patito} />
+        </LoaderWrapper>
+      )}
       <View style={styles.logo}>
         <SharedElement id={'logo'}>
           <Animatable.Image
@@ -54,15 +98,12 @@ export function ForgotScreen() {
         style={[
           formStyle.container,
           styles.formContainer,
-          {
-            flex: keyboardIsShowing ? 2 : 1,
-            justifyContent: keyboardIsShowing ? 'flex-start' : 'center',
-          },
+          styles.keyboard(keyboardIsShowing),
         ]}
         animation="slideInUp"
         ref={formRef}
         duration={200}>
-        <RestorePasswordForm />
+        <RestorePasswordForm callback={restoreMutation} />
       </Animatable.View>
     </KeyboardAvoidingView>
   );
@@ -80,5 +121,11 @@ const styles = StyleSheet.create({
   },
   formContainer: {
     flex: 1,
+  },
+  keyboard: (keyboardIsShowing) => {
+    return {
+      flex: keyboardIsShowing ? 2 : 1,
+      justifyContent: keyboardIsShowing ? 'flex-start' : 'center',
+    };
   },
 });

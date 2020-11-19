@@ -1,42 +1,34 @@
-import React, { useContext, useRef, useState } from 'react';
-import { useNavigation } from '@react-navigation/native';
-import { Dimensions, StyleSheet, Text, TextInput, View } from 'react-native';
-import * as Animatable from 'react-native-animatable';
+import React, { useContext, useState } from 'react';
+import { Dimensions, StyleSheet, TextInput, View } from 'react-native';
 import { StyledButtonText, StyledPrimaryButton } from '../style/button';
-import { formStyle } from '../style/form';
 import colors from '../utils/colors';
-import { restorePassword } from '../api/users';
 import { AuthContext } from '../context/auth';
-import { showMessage } from 'react-native-flash-message';
 import styled from 'styled-components/native';
+import { ResponsiveSize } from './../utils/helpers';
 
 const { width } = Dimensions.get('screen');
 
-/* const Text = styled(StyledButtonText)`
-  color: ${}
-` */
+const Text = styled(StyledButtonText)`
+  padding: 10px;
+  font-size: ${(props) => ResponsiveSize(props.size ?? 24)}px;
+`;
 
-export function RestorePasswordForm() {
+export function RestorePasswordForm({ callback }) {
   const {
     state: { token },
   } = useContext(AuthContext);
   const [email, setEmail] = useState('');
 
-  const onSubmit = async (email) => {
-    try {
-      await restorePassword(email, token);
-    } catch (e) {
-      showMessage({
-        message: 'Usuario no encontrado',
-        type: 'danger',
-      });
-    }
+  const onSubmit = async () => {
+    callback({ email, token });
   };
 
   return (
     <>
       <View style={style.inputWrapper}>
-        <Text style={style.text}>Email</Text>
+        <Text style={style.text} color={colors.white}>
+          Email
+        </Text>
         <TextInput
           style={style.input}
           onChangeText={(text) => setEmail(text)}
@@ -44,9 +36,9 @@ export function RestorePasswordForm() {
           keyboardType="email-address"
         />
       </View>
-      <View style={{ alignItems: 'center' }}>
+      <View>
         <StyledPrimaryButton title={'Reset Password'} onPress={onSubmit}>
-          <StyledButtonText>Reset Password</StyledButtonText>
+          <Text size={18}>Reset Password</Text>
         </StyledPrimaryButton>
       </View>
     </>
@@ -67,11 +59,7 @@ const style = StyleSheet.create({
     borderWidth: 2,
     borderRadius: 20,
     paddingHorizontal: 10,
-  },
-  text: {
-    color: colors.white,
-    padding: 10,
-    fontSize: 24,
+    color: colors.yellow_patito,
   },
   forgotText: {
     color: colors.yellow_patito,

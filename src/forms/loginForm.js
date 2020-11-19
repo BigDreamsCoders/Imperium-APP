@@ -1,20 +1,17 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import {
   StyleSheet,
   TextInput,
-  Text,
   View,
   Dimensions,
   TouchableWithoutFeedback,
 } from 'react-native';
-import { AuthContext } from '../context/auth';
 import { Button, StyledButtonText } from '../style/button';
 import colors from '../utils/colors';
 import { useNavigation } from '@react-navigation/native';
 import constants from '../utils/constants';
-import { login as onSubmit } from '../api/authentication';
-import { showMessage } from 'react-native-flash-message';
 import styled from 'styled-components/native';
+import { ResponsiveSize } from '../utils/helpers';
 
 const { width } = Dimensions.get('screen');
 
@@ -22,39 +19,18 @@ const LoginButton = styled(Button)`
   background-color: ${colors.yellow_patito};
 `;
 
-const LoginForm = ({ buttonText, onForgot }) => {
-  const {
-    state: { token },
-    login,
-  } = useContext(AuthContext);
+const Text = styled(StyledButtonText)`
+  padding: 10px;
+  font-size: ${ResponsiveSize(24)}px;
+`;
+
+const LoginForm = ({ buttonText, onForgot, onSubmit }) => {
   const navigation = useNavigation();
   const [email, onChangeEmail] = useState('');
   const [password, onChangePassword] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
 
-  const submit = async () => {
-    try {
-      const data = await onSubmit({ email, password }, token);
-      login({ token: data.token });
-    } catch (e) {
-      const message = {
-        message: 'No nos pudimos conectar con el servidor',
-        type: 'danger',
-      };
-      if (e?.response?.data) {
-        switch (e.response.data.statusCode) {
-          case 401: {
-            message.message = 'Credenciales erroneas';
-            break;
-          }
-          default: {
-            message.message = 'Algo salió mal';
-            break;
-          }
-        }
-      }
-      showMessage(message);
-    }
+  const submit = () => {
+    onSubmit({ email, password });
   };
 
   return (
@@ -90,7 +66,6 @@ const LoginForm = ({ buttonText, onForgot }) => {
           <Text style={styles.forgotText}>Forgot your password?</Text>
         </TouchableWithoutFeedback>
       </View>
-      {errorMessage ? <Text>{errorMessage}</Text> : null}
     </>
   );
 };

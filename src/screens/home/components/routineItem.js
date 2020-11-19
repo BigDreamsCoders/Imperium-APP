@@ -1,10 +1,9 @@
 import React from 'react';
 import styled from 'styled-components/native';
-import colors from '../../../../utils/colors';
+import colors from '../../../utils/colors';
 import { Icon } from 'react-native-elements';
 import TimeAgo from 'react-native-timeago';
-import moment from 'moment';
-import { dateParser } from '../../../../utils/helpers';
+import { dateParser } from '../../../utils/helpers';
 
 const Card = styled.View`
   position: relative;

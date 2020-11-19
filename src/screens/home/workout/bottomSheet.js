@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
+import { StyleSheet } from 'react-native';
 import { Icon, Input } from 'react-native-elements';
 import { showMessage } from 'react-native-flash-message';
-import { useQuery, useQueryCache } from 'react-query';
 import styled from 'styled-components/native';
-import { getAvailableWorkstationByCategory } from '../../../api/workstation';
 import { Loader } from '../../../components/loader';
 import { Button } from '../../../style/button';
 import colors from '../../../utils/colors';
@@ -19,10 +18,11 @@ const CloseIconWrapper = styled.View`
 `;
 
 const Text = styled.Text`
+  align-self: ${(props) => props.alignSelf ?? 'auto'};
   color: ${(props) => props.color ?? colors.yellow_patito};
+  text-align: center;
   font-size: ${(props) =>
     props.size ? ResponsiveSize(props.size) : ResponsiveSize(20)}px;
-  text-align: center;
   font-family: 'Oswald-Bold';
 `;
 
@@ -75,7 +75,7 @@ function CardioQuestions({ callback }) {
   const [calories, setCalories] = useState('');
   return (
     <>
-      <Text color={colors.red} style={{ alignSelf: 'flex-start' }}>
+      <Text color={colors.red} alignSelf="flex-start">
         ¿Cuantas calorias marca la maquina?
       </Text>
       <Input
@@ -97,7 +97,9 @@ function CardioQuestions({ callback }) {
         onPress={() => {
           try {
             const caloriesNum = parseFloat(calories);
-            if (caloriesNum < 0) throw Error();
+            if (caloriesNum < 0) {
+              throw Error();
+            }
             callback({ calories });
           } catch (e) {
             showMessage({
@@ -119,7 +121,7 @@ function StrengthQuestions({ callback }) {
   const [reps, setReps] = useState('');
   return (
     <>
-      <Text color={colors.royal_blue} style={{ alignSelf: 'flex-start' }}>
+      <Text color={colors.royal_blue} alignSelf="flex-start">
         ¿Cuantos sets realizaste?
       </Text>
       <Input
@@ -131,7 +133,7 @@ function StrengthQuestions({ callback }) {
         }}
         keyboardType="decimal-pad"
       />
-      <Text color={colors.royal_blue} style={{ alignSelf: 'flex-start' }}>
+      <Text color={colors.royal_blue} alignSelf="flex-start">
         ¿Cuantas repeticiones hiciste?
       </Text>
       <Input
@@ -153,9 +155,13 @@ function StrengthQuestions({ callback }) {
         onPress={() => {
           try {
             const setsNum = parseInt(sets, 10);
-            if (setsNum < 0) throw Error();
+            if (setsNum < 0) {
+              throw Error();
+            }
             const repsNum = parseInt(reps, 10);
-            if (repsNum < 0) throw Error();
+            if (repsNum < 0) {
+              throw Error();
+            }
             callback({ repetition: repsNum, sets: setsNum });
           } catch (e) {
             showMessage({
@@ -175,12 +181,7 @@ function StrengthQuestions({ callback }) {
 export function Header({ onClose, loading }) {
   return (
     <BottomSheetHeaderView>
-      {loading && (
-        <Loader
-          color={colors.royal_blue}
-          style={{ position: 'absolute', top: 10, left: 10 }}
-        />
-      )}
+      {loading && <Loader color={colors.royal_blue} style={styles.loader} />}
       <CloseIconWrapper>
         <Icon
           type="material-community"
@@ -200,17 +201,11 @@ export function Content({ workstation, time, callback }) {
   return (
     <BottomSheetView>
       <BottomSheetContentView>
-        <Text
-          color={colors.royal_blue}
-          size={28}
-          style={{ fontWeight: 'bold' }}>
+        <Text color={colors.royal_blue} size={28}>
           ¿Ya terminaste con {workstation.name}?
         </Text>
 
-        <Text
-          color={colors.royal_blue}
-          size={28}
-          style={{ fontWeight: 'bold', marginBottom: 10 }}>
+        <Text color={colors.royal_blue} size={28} style={styles.mb}>
           Tu tiempo: {time}
         </Text>
         {workstationType.name === workstationTypeArray[0] ? (
@@ -257,3 +252,10 @@ export function WorkstationSelection({
     </BottomSheetView>
   );
 }
+
+const styles = StyleSheet.create({
+  mb: {
+    marginBottom: 10,
+  },
+  loader: { position: 'absolute', top: 10, left: 10 },
+});

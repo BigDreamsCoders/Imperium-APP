@@ -1,5 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { Dimensions, StatusBar, StyleSheet } from 'react-native';
 import { Header } from '../components/header';
 import { Container } from '../style/layouts';
 import QR from 'react-native-qrcode-svg';
@@ -12,6 +12,7 @@ import { findUserFromScan, markEntrance } from '../api/users';
 import { Button } from '../style/button';
 import { showMessage } from 'react-native-flash-message';
 import { useNavigation } from '@react-navigation/native';
+import { StyleSheet } from 'react-native';
 
 const Wrapper = styled(Container)`
   justify-content: center;
@@ -61,7 +62,6 @@ export function ScanQRScreen() {
   const { data, refetch } = useQuery(
     ['get-user-scanned', { id: scannedId }],
     (_, { id }) => {
-      console.log(id, 'este es el id');
       return findUserFromScan(token, id);
     },
   );
@@ -101,7 +101,7 @@ export function ScanQRScreen() {
     <Container>
       <Header />
       <QRCodeScanner
-        topViewStyle={{ paddingBottom: 20 }}
+        topViewStyle={styles.pb}
         topContent={
           scannedId ? (
             <Text>
@@ -114,7 +114,7 @@ export function ScanQRScreen() {
         onRead={onSuccess}
         reactivate={true}
         reactivateTimeout={5000}
-        bottomViewStyle={{ paddingTop: 20 }}
+        bottomViewStyle={styles.pt}
         bottomContent={
           scannedId ? (
             <AuthorizeButton onPress={onPress}>
@@ -130,3 +130,8 @@ export function ScanQRScreen() {
     </Container>
   );
 }
+
+const styles = StyleSheet.create({
+  pb: { paddingBottom: 20 },
+  pt: { paddingTop: 20 },
+});

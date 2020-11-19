@@ -1,5 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useContext, useEffect } from 'react';
-import { StyleSheet, View } from 'react-native';
 import styled from 'styled-components/native';
 import { StyledPrimaryButton, StyledButtonText } from '../../style/button';
 import colors from '../../utils/colors';
@@ -26,6 +26,12 @@ const Button = (props) => (
   </PrimaryButton>
 );
 
+const RoutineWrapper = styled.View`
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+`;
+
 export function WorkoutStarterScreen() {
   const {
     state: { user },
@@ -44,10 +50,9 @@ export function WorkoutStarterScreen() {
   return (
     <Layout text="Tus ultimos datos">
       <Content justifyContent="flex-end">
-        <View
-          style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <RoutineWrapper>
           <RoutineHistory />
-        </View>
+        </RoutineWrapper>
         <Animatable.View animation="bounceIn">
           <Button
             onPress={() => {

@@ -7,9 +7,7 @@ import { CustomDrawerContent } from '../components/drawerContent';
 import colors from '../utils/colors';
 import styled from 'styled-components/native';
 import { Loader } from '../components/loader';
-import { Header } from '../components/header';
 import { StatusBar } from 'react-native';
-import { useQuery } from 'react-query';
 
 const Stack = createSharedElementStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -37,6 +35,7 @@ function MainNavigator() {
     if (!state.user) {
       updateUserInfo();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { SafeAreaView, ScrollView, StyleSheet } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 import { DrawerContent } from '@react-navigation/drawer';
 import { StyledButtonText, StyledPrimaryButton } from '../style/button';
 import MaterialIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -37,10 +37,14 @@ const LogoutText = styled(StyledButtonText)`
   font-size: 24px;
 `;
 
+const SafeAreaView = styled.SafeAreaView`
+  flex: 1;
+`;
+
 export function CustomDrawerContent(props) {
   const { logout } = useContext(AuthContext);
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView>
       <ImageWrapper>
         <StyledImage
           source={require('./../assets/logo.png')}

@@ -1,6 +1,5 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
-import { Icon } from 'react-native-elements';
 import styled from 'styled-components/native';
 import colors from '../../../utils/colors';
 
@@ -46,7 +45,7 @@ export function WorkstationItem({ item, active, onPress }) {
   const { img, name } = item;
   return (
     <Wrapper
-      style={{ elevation: 4 }}
+      style={styles.elevation}
       onPress={() => {
         onPress(active);
       }}
@@ -60,3 +59,9 @@ export function WorkstationItem({ item, active, onPress }) {
     </Wrapper>
   );
 }
+
+const styles = StyleSheet.create({
+  elevation: {
+    elevation: 4,
+  },
+});

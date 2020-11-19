@@ -4,7 +4,7 @@ export const getUser = ({ email, password }, token) => {
   return axiosInstance(token).get('/users');
 };
 
-export const restorePassword = (email, token) => {
+export const restorePassword = ({ email, token }) => {
   return axiosInstance(token).patch('/users/reset/password', { email });
 };
 

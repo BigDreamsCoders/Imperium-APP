@@ -1,5 +1,4 @@
-import React, { useEffect, useRef } from 'react';
-import { useNavigation } from '@react-navigation/native';
+import React, { useRef } from 'react';
 import { AnimtableContent, Container } from '../../../style/layouts';
 import { SafeAreaView } from 'react-navigation';
 import { StatusBar } from 'react-native';
@@ -21,23 +20,7 @@ const Text = styled.Text`
 `;
 
 export function Layout({ children, text }) {
-  const navigation = useNavigation();
   const containerRef = useRef();
-
-  useEffect(() => {
-    const inCallback = () => {
-      //containerRef.current.slideInLeft(500);
-    };
-    const outCallback = () => {
-      //containerRef.current.slideOutLeft(10);
-    };
-    navigation.addListener('focus', inCallback);
-    navigation.addListener('blur', outCallback);
-    return () => {
-      navigation.removeListener('focus', inCallback);
-      navigation.removeListener('blur', outCallback);
-    };
-  }, [navigation]);
 
   return (
     <Container>

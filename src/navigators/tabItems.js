@@ -12,7 +12,7 @@ export const tabNavigationItems = [
     component: WorkoutStarterScreen,
     options: {
       tabBarLabel: 'Entrenamiento',
-      tabBarIcon: ({ focused, color }) => {
+      tabBarIcon: () => {
         return (
           <Icon
             name="timer"
@@ -29,7 +29,7 @@ export const tabNavigationItems = [
     component: RoutineScreen,
     options: {
       tabBarLabel: 'Rutinas',
-      tabBarIcon: ({ focused, color }) => {
+      tabBarIcon: () => {
         return (
           <Icon
             name="run"
@@ -46,7 +46,7 @@ export const tabNavigationItems = [
     component: ProfileScreen,
     options: {
       tabBarLabel: 'Perfil',
-      tabBarIcon: ({ focused, color }) => {
+      tabBarIcon: () => {
         return (
           <Icon
             name="user"

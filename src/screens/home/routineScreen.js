@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useNavigation } from '@react-navigation/native';
 import React, { useContext, useEffect } from 'react';
 import { FlatList, RefreshControl, StyleSheet } from 'react-native';
@@ -8,7 +9,7 @@ import { getRoutines, toogleSaved } from '../../api/routine';
 import { AuthContext } from '../../context/auth';
 import colors from '../../utils/colors';
 import { Layout } from './components/layout';
-import { RoutineItem } from './components/routine/routineItem';
+import { RoutineItem } from './components/routineItem';
 import {
   getUserRoutineHistory,
   userRoutines,
@@ -19,6 +20,7 @@ import { FabButton } from '../../components/fabAnimation';
 import { Container } from '../../style/layouts';
 import { SharedElement } from 'react-navigation-shared-element';
 import { FAB } from 'react-native-paper';
+import { ResponsiveSize } from '../../utils/helpers';
 
 const Wrapper = styled(Container)`
   padding: 4px 0;
@@ -31,6 +33,9 @@ const TextWrapper = styled.View`
 `;
 
 const Text = styled.Text`
+  color: ${colors.yellow_patito};
+  font-size: ${ResponsiveSize(40)}px;
+  align-self: center;
   font-family: 'Oswald-Regular';
 `;
 
@@ -229,14 +234,7 @@ function RoutineHistory() {
     <Wrapper>
       {data.length === 0 ? (
         <TextWrapper>
-          <Text
-            style={{
-              color: colors.yellow_patito,
-              fontSize: 40,
-              alignSelf: 'center',
-            }}>
-            Aun no has hecho rutinas
-          </Text>
+          <Text>Aun no has hecho rutinas</Text>
         </TextWrapper>
       ) : (
         <FlatList

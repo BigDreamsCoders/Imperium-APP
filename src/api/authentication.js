@@ -1,7 +1,7 @@
 import { axiosInstance } from './fetch';
 
-export const login = async ({ email, password }, token) => {
-  const { data } = await axiosInstance(token).post('/auth/login', {
+export const login = async ({ email, password }) => {
+  const { data } = await axiosInstance(null).post('/auth/login', {
     email,
     password,
   });

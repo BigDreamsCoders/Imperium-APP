@@ -4,12 +4,15 @@ import moment from 'moment';
 const { height: deviceHeight } = Dimensions.get('window');
 
 export const ResponsiveSize = (size) => {
-  console.log(size);
   if (deviceHeight <= 568) {
     return size;
-  } else if (deviceHeight <= 667) return size * 1.17;
-  else if (deviceHeight <= 736) return size * 1.29;
-  else if (deviceHeight <= 1024) return size * 1.5;
+  } else if (deviceHeight <= 667) {
+    return size * 1.17;
+  } else if (deviceHeight <= 736) {
+    return size * 1.29;
+  } else if (deviceHeight <= 1024) {
+    return size * 1.5;
+  }
 };
 
 export const timeFormater = (prev, current) => {
@@ -36,7 +39,6 @@ export const timeFormater = (prev, current) => {
 };
 
 export const addToObject = (prev, name) => {
-  console.log(prev[name], name);
   if (prev[name]) {
     return {
       ...prev,

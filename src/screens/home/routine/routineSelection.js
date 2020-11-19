@@ -1,7 +1,7 @@
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import React, { useContext, useEffect } from 'react';
-import { FlatList } from 'react-native';
+import { FlatList, StyleSheet } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { useQuery } from 'react-query';
 import styled from 'styled-components/native';
@@ -12,11 +12,7 @@ import { Container } from '../../../style/layouts';
 import colors from '../../../utils/colors';
 import constants from '../../../utils/constants';
 import { dateParser } from '../../../utils/helpers';
-import {
-  Time,
-  TimeText,
-  TimeTextWrapper,
-} from './../components/routine/routineItem';
+import { Time, TimeText, TimeTextWrapper } from '../components/routineItem';
 
 const Wrapper = styled.View`
   width: 100%;
@@ -77,6 +73,7 @@ function SavedRoutines() {
     return () => {
       removeListener('focus', refetch);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return (
     <TabContainer>
@@ -119,6 +116,7 @@ function AllRoutines() {
     return () => {
       removeListener('focus', refetch);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -160,12 +158,13 @@ function RoutineHistory() {
     return () => {
       removeListener('focus', refetch);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <TabContainer>
       {data.length === 0 ? (
-        <Container style={{ justifyContent: 'center', alignItems: 'center' }}>
+        <Container style={styles.center}>
           <Message>Aun no has hecho rutinas</Message>
         </Container>
       ) : (
@@ -268,3 +267,7 @@ export function RoutineSelection() {
     </Wrapper>
   );
 }
+
+const styles = StyleSheet.create({
+  center: { justifyContent: 'center', alignItems: 'center' },
+});

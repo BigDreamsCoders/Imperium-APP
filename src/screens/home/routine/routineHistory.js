@@ -1,7 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
 import moment from 'moment';
 import React, { useContext, useEffect, useMemo } from 'react';
-import { View } from 'react-native';
 import { useQuery } from 'react-query';
 import styled from 'styled-components/native';
 import { getUserRoutineHistory } from '../../../api/users';
@@ -69,7 +68,7 @@ export function RoutineHistory() {
 
   const { addListener, removeListener } = useNavigation();
 
-  const { data, isFetching, refetch, isFetched } = useQuery(
+  const { data, isFetching, refetch } = useQuery(
     'get-initial-history',
     async () => {
       return await getUserRoutineHistory(token);
@@ -81,6 +80,7 @@ export function RoutineHistory() {
     () => {
       removeListener('focus', refetch);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const lastRoutine = useMemo(() => {

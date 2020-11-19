@@ -1,4 +1,5 @@
 import React, { useContext, useState } from 'react';
+import { StyleSheet } from 'react-native';
 import { Icon, Input } from 'react-native-elements';
 import { showMessage } from 'react-native-flash-message';
 import { FAB } from 'react-native-paper';
@@ -62,8 +63,7 @@ export function NewRoutineScreen({ navigation }) {
   const [name, setName] = useState('');
 
   const { data, isFetching } = useQuery('workstation-category', async () => {
-    const data = await getWorkstationsCategory(token);
-    return data;
+    return await getWorkstationsCategory(token);
   });
 
   const [addNewRoutine] = useMutation(addRoutine, {
@@ -106,7 +106,7 @@ export function NewRoutineScreen({ navigation }) {
           color={colors.royal_blue}
           onPress={() => {
             cache.invalidateQueries('workstation-category');
-            navigation.goBack(); /* navigate(constants.SCREENS.ROUTINE.ROUTINES); */
+            navigation.goBack();
           }}
         />
       </IconCloseWrap>
@@ -160,10 +160,7 @@ export function NewRoutineScreen({ navigation }) {
         <IconDoneWrapper id="fab">
           <FAB
             icon="check"
-            style={{
-              margin: 16,
-              backgroundColor: colors.royal_blue,
-            }}
+            style={styles.fab}
             onPress={onComplete}
             color={colors.yellow_patito}
           />
@@ -172,3 +169,10 @@ export function NewRoutineScreen({ navigation }) {
     </Wrapper>
   );
 }
+
+const styles = StyleSheet.create({
+  fab: {
+    margin: 16,
+    backgroundColor: colors.royal_blue,
+  },
+});

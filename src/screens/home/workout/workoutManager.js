@@ -1,7 +1,7 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, {
   useCallback,
   useContext,
-  useEffect,
   useMemo,
   useRef,
   useState,
@@ -17,8 +17,7 @@ import { completeRoutine, getRoutineById } from '../../../api/routine';
 import { Container } from '../../../style/layouts';
 import colors from '../../../utils/colors';
 import { Chronometer } from './chronometer';
-import { AppState, Keyboard, SafeAreaView } from 'react-native';
-import { Button } from '../../../style/button';
+import { Keyboard, SafeAreaView } from 'react-native';
 import { TimeWrapper } from '../../../wrapper/Time';
 import { TimeContext } from '../../../context/time';
 import { Header, WorkstationSelection, Content } from './bottomSheet';
@@ -28,7 +27,6 @@ import {
 } from '../../../api/workstation';
 import { showMessage } from 'react-native-flash-message';
 import { ResponsiveSize } from '../../../utils/helpers';
-import { style } from '../../../style/logo';
 
 const Text = styled.Text`
   color: ${(props) => props.color ?? colors.yellow_patito};
@@ -132,26 +130,26 @@ function WorkoutManagerWrapper() {
     { enabled: false },
   );
 
-  const [
-    completeRoutineMutation,
-    { isLoading: completeLoading, error },
-  ] = useMutation(completeRoutine, {
-    onSuccess: () => {
-      setHasSelectWorkstation(true);
-      onCloseModal();
-      goBack();
-      showMessage({
-        message: 'Realizaste tu rutina con exito',
-        type: 'success',
-      });
+  const [completeRoutineMutation, { isLoading: completeLoading }] = useMutation(
+    completeRoutine,
+    {
+      onSuccess: () => {
+        setHasSelectWorkstation(true);
+        onCloseModal();
+        goBack();
+        showMessage({
+          message: 'Realizaste tu rutina con exito',
+          type: 'success',
+        });
+      },
+      onError: () => {
+        showMessage({
+          message: 'Ocurrio un error guardando tu rutina',
+          type: 'danger',
+        });
+      },
     },
-    onError: () => {
-      showMessage({
-        message: 'Ocurrio un error guardando tu rutina',
-        type: 'danger',
-      });
-    },
-  });
+  );
   const [workstationUseMutation, { isLoading }] = useMutation(useWorkstation, {
     onSuccess: () => {
       onCloseModal();

@@ -1,6 +1,5 @@
 import React from 'react';
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
-import { createStackNavigator } from '@react-navigation/stack';
 import { tabNavigationItems } from '../../navigators/tabItems';
 import colors from '../../utils/colors';
 import { StyleSheet } from 'react-native';
@@ -81,8 +80,9 @@ export function HomeScreen() {
     <RootStack.Navigator
       headerMode="none"
       screenOptions={({ route: { name } }) => {
-        if (name === constants.SCREENS.ROUTINE.NEWROUTINE)
+        if (name === constants.SCREENS.ROUTINE.NEWROUTINE) {
           return { ...opacityTransition };
+        }
       }}
       initialRouteName={constants.SCREENS.HOME.HOME_TAB}>
       {routes.map((item) => (

@@ -5,8 +5,6 @@ import {
   StyleSheet,
   StatusBar,
   Dimensions,
-  KeyboardAvoidingView,
-  Platform,
   Keyboard,
 } from 'react-native';
 import * as Animatable from 'react-native-animatable';
@@ -17,24 +15,52 @@ import { formStyle } from '../style/form';
 import colors from '../utils/colors';
 import { style as logoStyle } from './../style/logo';
 import { AuthContext } from '../context/auth';
+import { login as onSubmit } from '../api/authentication';
 import styled from 'styled-components/native';
 import { Loader } from '../components/loader';
+import { useMutation } from 'react-query';
+import { showMessage } from 'react-native-flash-message';
 
 const { width } = Dimensions.get('screen');
 
 const LoaderWrapper = styled.View`
+  position: absolute;
   top: 10px;
   right: 10px;
 `;
 
 export function LoginScreen() {
-  const {
-    state: { isLoading },
-  } = useContext(AuthContext);
+  const { login } = useContext(AuthContext);
 
   const formRef = useRef();
   const [keyboardIsShowing, setKeyboardIsShowing] = useState(false);
   const { removeListener, addListener } = useNavigation();
+
+  const [loginMutation, { isLoading }] = useMutation(onSubmit, {
+    onSuccess: (data) => {
+      login({ token: data.token });
+    },
+    onError: (e) => {
+      const message = {
+        message: 'No nos pudimos conectar con el servidor',
+        type: 'danger',
+      };
+      if (e?.response?.data) {
+        switch (e.response.data.statusCode) {
+          case 401: {
+            message.message = 'Credenciales erroneas';
+            break;
+          }
+          default: {
+            message.message = 'Algo salió mal';
+            break;
+          }
+        }
+      }
+      showMessage(message);
+    },
+  });
+
   const onForgot = async () => {
     await formRef.current.bounceOut(200);
   };
@@ -63,7 +89,6 @@ export function LoginScreen() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  console.log(keyboardIsShowing);
   return (
     <KeyboardAwareScrollView
       contentContainerStyle={styles.container}
@@ -86,14 +111,12 @@ export function LoginScreen() {
         animation="slideInUp"
         duration={200}
         ref={formRef}
-        style={[
-          formStyle.container,
-          {
-            flex: keyboardIsShowing ? 2 : 1,
-            justifyContent: keyboardIsShowing ? 'flex-start' : 'center',
-          },
-        ]}>
-        <LoginForm buttonText="Sign in" onForgot={onForgot} />
+        style={[formStyle.container, styles.keyboard]}>
+        <LoginForm
+          buttonText="Sign in"
+          onSubmit={loginMutation}
+          onForgot={onForgot}
+        />
       </Animatable.View>
     </KeyboardAwareScrollView>
   );
@@ -116,4 +139,8 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 10,
   },
+  keyboard: (keyboardIsShowing) => ({
+    flex: keyboardIsShowing ? 2 : 1,
+    justifyContent: keyboardIsShowing ? 'flex-start' : 'center',
+  }),
 });

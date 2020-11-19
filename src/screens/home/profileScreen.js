@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useContext, useEffect, useMemo } from 'react';
 import { AuthContext } from '../../context/auth';
 import { Layout } from './components/layout';
@@ -5,7 +6,7 @@ import colors from '../../utils/colors';
 import { dateParser, ResponsiveSize, timeFormater } from '../../utils/helpers';
 import styled from 'styled-components/native';
 import { useQuery } from 'react-query';
-import { View, Text } from 'react-native-animatable';
+import { View } from 'react-native-animatable';
 import { ScrollView } from 'react-native-gesture-handler';
 import TimeAgo from 'react-native-timeago';
 import moment from 'moment';
@@ -64,7 +65,7 @@ export function ProfileScreen() {
 
   const { addListener, removeListener } = useNavigation();
 
-  const { data: user, isFetching, refetch, status } = useQuery(
+  const { data: user, isFetching, refetch } = useQuery(
     'get-user-profile-info',
     async () => {
       return await verifyToken(token);
@@ -80,15 +81,12 @@ export function ProfileScreen() {
             acc,
             data.reduce(
               (prev, { time }) => {
-                console.log(prev);
                 const [minStr, secStr] = time.split(':');
                 try {
                   const min = parseInt(minStr, 10);
                   const sec = parseInt(secStr, 10);
                   return timeFormater(prev, [0, min, sec]);
-                } catch (e) {
-                  console.log(e);
-                }
+                } catch (e) {}
               },
               [0, 0, 0],
             ),
