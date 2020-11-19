@@ -75,7 +75,7 @@ function CardioQuestions({ callback }) {
   const [calories, setCalories] = useState('');
   return (
     <>
-      <Text color={colors.red} alignSelf="flex-start">
+      <Text color={colors.royal_blue} alignSelf="flex-start">
         ¿Cuantas calorias marca la maquina?
       </Text>
       <Input
@@ -202,7 +202,7 @@ export function Content({ workstation, time, callback }) {
     <BottomSheetView>
       <BottomSheetContentView>
         <Text color={colors.royal_blue} size={28}>
-          ¿Ya terminaste con {workstation.name}?
+          ¿Es todo con {workstation.name}?
         </Text>
 
         <Text color={colors.royal_blue} size={28} style={styles.mb}>

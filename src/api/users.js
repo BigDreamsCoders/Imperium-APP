@@ -25,7 +25,7 @@ export const userRoutines = async (token) => {
 
 export const getUserRoutineHistory = async (token) => {
   const { data } = await axiosInstance(token).get('users/me');
-  return data.history;
+  return data.history.reverse();
 };
 
 export const markEntrance = async ({ token, id }) => {

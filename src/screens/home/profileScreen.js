@@ -77,6 +77,7 @@ export function ProfileScreen() {
       const { history } = user;
       return history.reduce(
         (acc, { data }) => {
+          console.log(acc);
           return timeFormater(
             acc,
             data.reduce(
@@ -96,7 +97,7 @@ export function ProfileScreen() {
       );
     }
     return [0, 0, 0];
-  }, []);
+  }, [user]);
 
   const totalCalories = useMemo(() => {
     if (user) {

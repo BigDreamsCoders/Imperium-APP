@@ -148,7 +148,7 @@ function RoutineHistory() {
   const { data, refetch } = useQuery(
     'get-routine-history',
     async () => {
-      return (await getUserRoutineHistory(token)).reverse();
+      return await getUserRoutineHistory(token);
     },
     { placeholderData: [] },
   );
@@ -172,11 +172,11 @@ function RoutineHistory() {
           data={data}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => {
-            const { createdAt, id, routine } = item;
+            const { createdAt, routine } = item;
             return (
               <Card
                 onPress={() => {
-                  params.navigateCallback(id);
+                  params.navigateCallback(routine.id);
                 }}>
                 <Title color={colors.white}>{routine.name}</Title>
                 <>

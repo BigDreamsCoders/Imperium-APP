@@ -52,6 +52,7 @@ export function Chronometer({
   shouldRestart,
   hasSelectedWorkstation,
   selectWorkstaitonCallback,
+  hasStartedCallback,
 }) {
   const { setTime } = useContext(TimeContext);
   const [milli, setMilli] = useState(0);
@@ -90,6 +91,7 @@ export function Chronometer({
         setHasStarted(true);
       }
       setRunning(true);
+      hasStartedCallback(true);
       intervalRef.current = setInterval(() => {
         setMilli((milliValue) => {
           if (milliValue === 99) {
@@ -138,7 +140,7 @@ export function Chronometer({
     if (!hasSelectedWorkstation) {
       setgreenText('Maquina');
     } else {
-      setgreenText('Start');
+      setgreenText('Empezar');
     }
   }, [
     shouldStop,
@@ -157,7 +159,7 @@ export function Chronometer({
       </CountWrapper>
       <ButtonWrapper>
         <CircularButton color={colors.red} onPress={onPause} opa>
-          <Text>Stop</Text>
+          <Text>Pausar</Text>
         </CircularButton>
         <CircularButton color={colors.green} onPress={onStart}>
           <Text color={`${colors.yellow_patito}${isRunning ? '80' : ''}`}>

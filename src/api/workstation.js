@@ -13,8 +13,13 @@ export const getAvailableWorkstationByCategory = async (token, id) => {
 };
 
 export const useWorkstation = async ({ token, id, userId, actionId }) => {
-  return await axiosInstance(token).post(`/workstation/use/${id}`, {
-    actionId,
-    userId,
-  });
+  try {
+    const { data } = await axiosInstance(token).post(`/workstation/use/${id}`, {
+      actionId,
+      userId,
+    });
+    return data;
+  } catch (e) {
+    console.log(e.response);
+  }
 };

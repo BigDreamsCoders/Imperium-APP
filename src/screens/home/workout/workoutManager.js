@@ -2,6 +2,7 @@
 import React, {
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -103,8 +104,10 @@ function WorkoutManagerWrapper() {
   const [shouldStopChronometer, setShouldStopChronometer] = useState(false);
   const [shouldRestartChronometer, setShouldStartChronometer] = useState(false);
   const [hasSelectWorkstation, setHasSelectWorkstation] = useState(false);
+  const [hasStarted, setHasStarted] = useState(false);
   const [routineData, setRoutineData] = useState([]);
   const [workstationId, setWorkstationId] = useState(null);
+  const [wantsToExit, setWansToExit] = useState(false);
 
   const { params } = useRoute();
   const { goBack } = useNavigation();
@@ -115,7 +118,6 @@ function WorkoutManagerWrapper() {
       return await getRoutineById(token, params.routineId);
     },
   );
-
   const {
     data: availableWorkstation,
     refetch: refetchAvailableWorkstation,
@@ -134,13 +136,15 @@ function WorkoutManagerWrapper() {
     completeRoutine,
     {
       onSuccess: () => {
-        setHasSelectWorkstation(true);
-        onCloseModal();
-        goBack();
         showMessage({
-          message: 'Realizaste tu rutina con exito',
+          message: 'Terminaste tu rutina con exito',
           type: 'success',
         });
+        if (wantsToExit) {
+          setHasSelectWorkstation(true);
+          onCloseModal();
+          goBack();
+        }
       },
       onError: () => {
         showMessage({
@@ -152,8 +156,10 @@ function WorkoutManagerWrapper() {
   );
   const [workstationUseMutation, { isLoading }] = useMutation(useWorkstation, {
     onSuccess: () => {
-      onCloseModal();
       setHasSelectWorkstation((value) => {
+        if (value) {
+          setHasStarted(false);
+        }
         return !value;
       });
     },
@@ -193,15 +199,13 @@ function WorkoutManagerWrapper() {
         { ...calorificData, time, workstation: workstationId },
       ]);
       workstationUseMutation({ id: workstationId, userId, token, actionId: 2 });
+      onCloseModal();
       const newIndex = index + 1;
       if (newIndex < data.workstation.length) {
         setIndex(newIndex);
         onCloseModal();
       } else {
-        completeRoutineMutation({
-          token,
-          data: { data: [...routineData], routine: params.routineId },
-        });
+        setWansToExit(true);
       }
     },
     [data, time, workstationId, routineData, params.routineId],
@@ -209,19 +213,21 @@ function WorkoutManagerWrapper() {
 
   const onSelectWorkstation = useCallback((id) => {
     workstationUseMutation({ id, userId, token, actionId: 1 });
+    onCloseModal();
     setWorkstationId(id);
   }, []);
 
   const onTerminatePress = () => {
-    if (time === '00:00:00') {
+    console.log(hasStarted && hasSelectWorkstation, time);
+    if (hasStarted) {
+      setShouldStopChronometer(true);
+      bottomSheetRef.current.snapTo(0);
+    } else {
       showMessage({
         message: 'Debes empezar tu rutina antes de marcar datos',
         type: 'danger',
       });
-      return;
     }
-    bottomSheetRef.current.snapTo(0);
-    setShouldStopChronometer(true);
   };
 
   const onEarlyExit = () => {
@@ -247,6 +253,15 @@ function WorkoutManagerWrapper() {
       }
     }
   };
+
+  useEffect(() => {
+    if (wantsToExit) {
+      completeRoutineMutation({
+        token,
+        data: { data: [...routineData], routine: params.routineId },
+      });
+    }
+  }, [wantsToExit]);
 
   return (
     <Container>
@@ -305,11 +320,12 @@ function WorkoutManagerWrapper() {
         shouldStop={shouldStopChronometer}
         shouldRestart={shouldRestartChronometer}
         hasSelectedWorkstation={hasSelectWorkstation}
+        hasStartedCallback={setHasStarted}
         selectWorkstaitonCallback={() => {
           openModal();
         }}
       />
-      {isFetched && (
+      {isFetched && data && (
         <BottomSheet
           ref={bottomSheetRef}
           snapPoints={['85%', 0]}

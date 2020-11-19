@@ -11,7 +11,9 @@ import 'moment/locale/es';
 
 moment.locale('es');
 
-const queryCache = new QueryCache();
+const queryCache = new QueryCache({
+  defaultConfig: { queries: { refetchOnMount: true } },
+});
 
 export function App() {
   useEffect(() => {
